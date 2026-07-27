@@ -1,5 +1,6 @@
 import type { RouteObject } from "react-router-dom";
 
+import { AuthPage } from "../features/auth/AuthPage.js";
 import { AppShell, HomePage, NotFoundPage } from "./route-components.js";
 
 export const appRoutes: RouteObject[] = [
@@ -10,6 +11,14 @@ export const appRoutes: RouteObject[] = [
       {
         index: true,
         element: <HomePage />,
+      },
+      {
+        path: "auth/login",
+        element: <AuthPage mode="login" />,
+      },
+      {
+        path: "auth/register",
+        element: <AuthPage mode="register" />,
       },
       {
         path: "*",

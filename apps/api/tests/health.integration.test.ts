@@ -4,11 +4,13 @@ import { describe, expect, it } from "vitest";
 
 import { createApp } from "../src/app.js";
 import { loadRootEnvFile, parseEnv } from "../src/config/env.js";
+import { TEST_AUTH_CONFIG, TEST_ENV_SECRETS } from "./test-config.js";
 
 describe("API foundation", () => {
   it("returns a contract-valid health response when MongoDB is connected", async () => {
     const response = await request(
       createApp({
+        auth: TEST_AUTH_CONFIG,
         databaseStatus: () => "connected",
         webOrigin: "http://localhost:5173",
       }),
@@ -27,6 +29,7 @@ describe("API foundation", () => {
   it("allows the configured web origin to read the health response", async () => {
     const response = await request(
       createApp({
+        auth: TEST_AUTH_CONFIG,
         databaseStatus: () => "connected",
         webOrigin: "http://localhost:5173",
       }),
@@ -41,6 +44,7 @@ describe("API foundation", () => {
   it("returns 503 with a contract-valid health response when MongoDB is disconnected", async () => {
     const response = await request(
       createApp({
+        auth: TEST_AUTH_CONFIG,
         databaseStatus: () => "disconnected",
         webOrigin: "http://localhost:5173",
       }),
@@ -59,6 +63,7 @@ describe("API foundation", () => {
   it("uses the shared error response for unknown API routes", async () => {
     const response = await request(
       createApp({
+        auth: TEST_AUTH_CONFIG,
         databaseStatus: () => "connected",
         webOrigin: "http://localhost:5173",
       }),
@@ -78,6 +83,7 @@ describe("API foundation", () => {
 
     try {
       parseEnv({
+        ...TEST_ENV_SECRETS,
         MONGODB_URI: "not-a-mongodb-uri",
         PORT: "70000",
         WEB_ORIGIN: "not-a-url",
@@ -95,12 +101,27 @@ describe("API foundation", () => {
   });
 
   it("uses reproducible local defaults when optional environment fields are absent", () => {
-    expect(parseEnv({})).toEqual({
+    expect(parseEnv(TEST_ENV_SECRETS)).toEqual({
+      ACCESS_TOKEN_SECRET: TEST_AUTH_CONFIG.accessTokenSecret,
+      ACCESS_TOKEN_TTL_SECONDS: 900,
+      REFRESH_TOKEN_SECRET: TEST_AUTH_CONFIG.refreshTokenSecret,
+      REFRESH_TOKEN_TTL_SECONDS: 604_800,
       NODE_ENV: "development",
       PORT: 4000,
       MONGODB_URI: "mongodb://127.0.0.1:27017/gym_tracking",
+      TOKEN_AUDIENCE: "gym-tracking-web",
+      TOKEN_ISSUER: "gym-tracking-api",
       WEB_ORIGIN: "http://localhost:5173",
     });
+  });
+
+  it("requires separate high-entropy token secrets without echoing them", () => {
+    expect(() =>
+      parseEnv({
+        ACCESS_TOKEN_SECRET: "too-short",
+        REFRESH_TOKEN_SECRET: "also-too-short",
+      }),
+    ).toThrowError(/ACCESS_TOKEN_SECRET.*REFRESH_TOKEN_SECRET/);
   });
 
   it("does not require a root .env file", () => {
@@ -110,6 +131,7 @@ describe("API foundation", () => {
   it("rejects a syntactically valid non-HTTP web origin", () => {
     expect(() =>
       parseEnv({
+        ...TEST_ENV_SECRETS,
         MONGODB_URI: "mongodb://127.0.0.1:27017/gym_tracking",
         WEB_ORIGIN: "ftp://example.com",
       }),

@@ -9,6 +9,14 @@ export async function startServer() {
   await connectDatabase(env.MONGODB_URI);
 
   const app = createApp({
+    auth: {
+      accessTokenAudience: env.TOKEN_AUDIENCE,
+      accessTokenIssuer: env.TOKEN_ISSUER,
+      accessTokenSecret: env.ACCESS_TOKEN_SECRET,
+      accessTokenTtlSeconds: env.ACCESS_TOKEN_TTL_SECONDS,
+      refreshTokenSecret: env.REFRESH_TOKEN_SECRET,
+      refreshTokenTtlSeconds: env.REFRESH_TOKEN_TTL_SECONDS,
+    },
     databaseStatus: getDatabaseStatus,
     webOrigin: env.WEB_ORIGIN,
   });
