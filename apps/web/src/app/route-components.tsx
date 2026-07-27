@@ -7,9 +7,12 @@ import { LanguageSwitcher } from "../features/preferences/LanguageSwitcher.js";
 import { ThemeSwitcher } from "../features/preferences/theme.js";
 import { useI18n } from "../i18n/i18n-context.js";
 import { getHealth } from "../services/api-client.js";
+import { useAuth } from "../features/auth/AuthProvider.js";
+import { UnitSwitcher } from "../features/preferences/unit.js";
 
 export function AppShell() {
   const { t } = useI18n();
+  const { status, user, signOut } = useAuth();
 
   return (
     <div className="app-shell">
@@ -25,10 +28,18 @@ export function AppShell() {
             <Link aria-current="page" to="/">
               {t("common", "overview")}
             </Link>
+            {status === "authenticated" ? (
+              <button className="text-button" onClick={() => void signOut()} type="button">
+                {t("auth", "logoutAction")}
+              </button>
+            ) : (
+              <Link to="/auth/login">{t("auth", "loginAction")}</Link>
+            )}
           </nav>
         </div>
         <div className="preference-controls">
           <LanguageSwitcher />
+          <UnitSwitcher label="Unit" />
           <ThemeSwitcher
             groupLabel={t("common", "themeGroupLabel")}
             labels={{
@@ -40,6 +51,11 @@ export function AppShell() {
         </div>
       </header>
       <Outlet />
+      {user ? (
+        <p className="account-indicator">
+          {t("auth", "accountLabel")} {user.email}
+        </p>
+      ) : null}
       <footer className="site-footer">
         <small>{t("common", "footer")}</small>
       </footer>

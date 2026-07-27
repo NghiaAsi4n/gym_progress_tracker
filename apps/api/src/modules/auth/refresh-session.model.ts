@@ -1,10 +1,6 @@
 import mongoose, { model, Schema, type Model } from "mongoose";
 
-export type RefreshRevocationReason =
-  | "ROTATED"
-  | "REUSE_DETECTED"
-  | "LOGOUT"
-  | "EXPIRED";
+export type RefreshRevocationReason = "ROTATED" | "REUSE_DETECTED" | "LOGOUT" | "EXPIRED";
 
 export interface RefreshSessionRecord {
   _id: mongoose.Types.ObjectId;
@@ -21,7 +17,7 @@ export interface RefreshSessionRecord {
   userId: mongoose.Types.ObjectId;
 }
 
-const refreshSessionSchema = new Schema<RefreshSessionRecord>(
+export const refreshSessionSchema = new Schema<RefreshSessionRecord>(
   {
     activatedAt: { required: true, type: Date },
     expiresAt: { required: true, type: Date },

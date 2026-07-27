@@ -168,4 +168,46 @@ describe("register, login, and protected account API", () => {
     expect(body.error.code).toBe("VALIDATION_ERROR");
     expect(body.error.details).toHaveProperty("fields");
   });
+
+  it("updates only the authenticated account preferences", async () => {
+    const first = await register("first@example.com");
+    const second = await register("second@example.com");
+    const firstAuth = authResponseSchema.parse(first.body);
+    const secondAuth = authResponseSchema.parse(second.body);
+
+    const updated = await request(buildApp())
+      .patch("/api/v1/me/preferences")
+      .set("Authorization", `Bearer ${firstAuth.data.accessToken}`)
+      .send({ locale: "en", theme: "DARK", unit: "LB" });
+
+    expect(updated.status).toBe(200);
+    expect(meResponseSchema.parse(updated.body).data.user.preferences).toEqual({
+      locale: "en",
+      theme: "DARK",
+      unit: "LB",
+    });
+
+    const secondMe = await request(buildApp())
+      .get("/api/v1/me")
+      .set("Authorization", `Bearer ${secondAuth.data.accessToken}`);
+    expect(meResponseSchema.parse(secondMe.body).data.user.preferences).toEqual({
+      locale: "vi",
+      theme: "SYSTEM",
+      unit: "KG",
+    });
+  });
+
+  it("rejects invalid or empty preference patches", async () => {
+    const registered = await register("preferences@example.com");
+    const auth = authResponseSchema.parse(registered.body);
+
+    for (const input of [{ locale: "fr" }, {}, { unit: "STONE" }]) {
+      const response = await request(buildApp())
+        .patch("/api/v1/me/preferences")
+        .set("Authorization", `Bearer ${auth.data.accessToken}`)
+        .send(input);
+      expect(response.status).toBe(422);
+      expect(apiErrorResponseSchema.parse(response.body).error.code).toBe("VALIDATION_ERROR");
+    }
+  });
 });

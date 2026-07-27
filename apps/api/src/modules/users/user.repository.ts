@@ -1,4 +1,5 @@
 import { UserModel, type UserRecord } from "./user.model.js";
+import type { UserPreferences } from "@gym-tracking/contracts";
 
 export interface CreateUserRecord {
   normalizedEmail: string;
@@ -18,6 +19,21 @@ export function createUserRepository() {
 
     async findCredentialsByEmail(normalizedEmail: string): Promise<UserRecord | null> {
       return UserModel.findOne({ normalizedEmail }).select("+passwordHash").lean<UserRecord>();
+    },
+
+    async updatePreferences(
+      userId: string,
+      preferences: Partial<UserPreferences>,
+    ): Promise<UserRecord | null> {
+      return UserModel.findOneAndUpdate(
+        { _id: userId },
+        {
+          $set: Object.fromEntries(
+            Object.entries(preferences).map(([key, value]) => [`preferences.${key}`, value]),
+          ),
+        },
+        { new: true, runValidators: true },
+      ).lean<UserRecord>();
     },
   };
 }
