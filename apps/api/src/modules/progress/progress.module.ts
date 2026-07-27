@@ -7,22 +7,21 @@ import { Router, type RequestHandler } from "express";
 import mongoose from "mongoose";
 
 import { validateInput } from "../../shared/validate.js";
-import { WorkoutModel } from "../workouts/workout.model.js";
+import { WorkoutModel, type WorkoutRecord } from "../workouts/workout.model.js";
 import { recalculateWorkoutCalories } from "./calorie-estimate.service.js";
+
+interface ExerciseProgressPoint {
+  date: string;
+  volumeKg: number;
+  bestWeightKg: number;
+  estimated1RmKg: number;
+  completedSets: number;
+}
 
 interface MutableExerciseProgress {
   exerciseId: string;
   exerciseName: string;
-  points: Map<
-    string,
-    {
-      date: string;
-      volumeKg: number;
-      bestWeightKg: number;
-      estimated1RmKg: number;
-      completedSets: number;
-    }
-  >;
+  points: Map<string, ExerciseProgressPoint>;
 }
 
 export function createProgressService() {
@@ -37,7 +36,7 @@ export function createProgressService() {
     })
       .select("startedAt exercises")
       .sort({ startedAt: 1 })
-      .lean();
+      .lean<Array<Pick<WorkoutRecord, "exercises" | "startedAt">>>();
     const byExercise = new Map<string, MutableExerciseProgress>();
     for (const workout of workouts) {
       const date = workout.startedAt.toISOString().slice(0, 10);
@@ -47,10 +46,10 @@ export function createProgressService() {
         );
         if (!completed.length) continue;
         const exerciseId = String(exercise.exerciseId);
-        const entry = byExercise.get(exerciseId) ?? {
+        const entry: MutableExerciseProgress = byExercise.get(exerciseId) ?? {
           exerciseId,
           exerciseName: exercise.name,
-          points: new Map(),
+          points: new Map<string, ExerciseProgressPoint>(),
         };
         const point = entry.points.get(date) ?? {
           date,
@@ -71,8 +70,7 @@ export function createProgressService() {
         byExercise.set(exerciseId, entry);
       }
     }
-    const dayCount =
-      Math.floor((toExclusive.getTime() - from.getTime()) / 86_400_000) || 1;
+    const dayCount = Math.floor((toExclusive.getTime() - from.getTime()) / 86_400_000) || 1;
     const data: ExerciseProgress[] = [...byExercise.values()].map((entry) => {
       const timeSeries = [...entry.points.values()];
       let runningPr = 0;
@@ -88,9 +86,7 @@ export function createProgressService() {
         exerciseName: entry.exerciseName,
         bestWeightKg: Math.max(...timeSeries.map(({ bestWeightKg }) => bestWeightKg)),
         totalVolumeKg: timeSeries.reduce((sum, point) => sum + point.volumeKg, 0),
-        bestEstimated1RmKg: Math.max(
-          ...timeSeries.map(({ estimated1RmKg }) => estimated1RmKg),
-        ),
+        bestEstimated1RmKg: Math.max(...timeSeries.map(({ estimated1RmKg }) => estimated1RmKg)),
         weeklySets:
           Math.round(
             (timeSeries.reduce((sum, point) => sum + point.completedSets, 0) /

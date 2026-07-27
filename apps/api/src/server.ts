@@ -21,6 +21,7 @@ export async function startServer() {
       refreshTokenTtlSeconds: env.REFRESH_TOKEN_TTL_SECONDS,
     },
     databaseStatus: getDatabaseStatus,
+    nodeEnv: env.NODE_ENV,
     webOrigin: env.WEB_ORIGIN,
   });
   const server = app.listen(env.PORT, () => {

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 
 import { Button } from "../components/ui/Button.js";
 import { Card } from "../components/ui/Card.js";
@@ -16,6 +16,9 @@ export function AppShell() {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        {t("common", "skipToContent")}
+      </a>
       <header className="site-header">
         <div className="header-primary">
           <Link className="brand" to="/">
@@ -25,17 +28,17 @@ export function AppShell() {
             <span>{t("common", "brandName")}</span>
           </Link>
           <nav aria-label={t("common", "navigationLabel")}>
-            <Link aria-current="page" to="/">
+            <NavLink end to="/">
               {t("common", "overview")}
-            </Link>
+            </NavLink>
             {status === "authenticated" ? (
               <>
-                <Link to="/exercises">Exercises</Link>
-                <Link to="/templates">Templates</Link>
-                <Link to="/training-plans">Plan</Link>
-                <Link to="/workouts/active">Workout</Link>
-                <Link to="/workouts/history">History</Link>
-                <Link to="/progress">Progress</Link>
+                <NavLink to="/exercises">{t("common", "navExercises")}</NavLink>
+                <NavLink to="/templates">{t("common", "navTemplates")}</NavLink>
+                <NavLink to="/training-plans">{t("common", "navPlan")}</NavLink>
+                <NavLink to="/workouts/active">{t("common", "navWorkout")}</NavLink>
+                <NavLink to="/workouts/history">{t("common", "navHistory")}</NavLink>
+                <NavLink to="/progress">{t("common", "navProgress")}</NavLink>
                 <button className="text-button" onClick={() => void signOut()} type="button">
                   {t("auth", "logoutAction")}
                 </button>
@@ -58,7 +61,9 @@ export function AppShell() {
           />
         </div>
       </header>
-      <Outlet />
+      <div id="main-content" tabIndex={-1}>
+        <Outlet />
+      </div>
       {user ? (
         <p className="account-indicator">
           {t("auth", "accountLabel")} {user.email}

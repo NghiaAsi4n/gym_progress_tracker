@@ -2,6 +2,13 @@
   "brandName": "Gym Progress Tracker",
   "navigationLabel": "Điều hướng chính",
   "overview": "Tổng quan",
+  "skipToContent": "Bỏ qua đến nội dung chính",
+  "navExercises": "Bài tập",
+  "navTemplates": "Mẫu tập",
+  "navPlan": "Kế hoạch",
+  "navWorkout": "Buổi tập",
+  "navHistory": "Lịch sử",
+  "navProgress": "Tiến bộ",
   "themeGroupLabel": "Giao diện",
   "themeLight": "Sáng",
   "themeDark": "Tối",
@@ -22,6 +29,6 @@
   "errorTitle": "Đã có lỗi xảy ra",
   "errorDescription": "Ứng dụng không thể hiển thị nội dung này. Bạn có thể thử tải lại phần giao diện.",
   "errorRetry": "Thử lại",
-  "footer": "Nền tảng trải nghiệm · Giai đoạn 2",
+  "footer": "Gym Progress Tracker · Sẵn sàng luyện tập",
   "missingTranslation": "Nội dung chưa có"
 }

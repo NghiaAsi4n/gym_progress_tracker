@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, type FormEvent } from "react";
+import type { BodyWeight } from "@gym-tracking/contracts";
 
+import { Button } from "../../components/ui/Button.js";
+import { Dialog } from "../../components/ui/Dialog.js";
+import { Input } from "../../components/ui/Input.js";
 import {
   createBodyWeight,
   deleteBodyWeight,
@@ -24,6 +28,8 @@ export function BodyWeightPage() {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [measuredOn, setMeasuredOn] = useState(today);
   const [weight, setWeight] = useState("");
+  const [editing, setEditing] = useState<BodyWeight | null>(null);
+  const [editingWeight, setEditingWeight] = useState("");
   const entries = useQuery({
     queryKey: ["body-weights", "year"],
     queryFn: () => listBodyWeights(addDays(today, -365), today),
@@ -59,31 +65,27 @@ export function BodyWeightPage() {
       <section className="body-weight-layout">
         <form className="planning-panel planning-form" onSubmit={submit}>
           <h2>Add measurement</h2>
-          <label>
-            Date
-            <input
-              max={today}
-              onChange={(event) => setMeasuredOn(event.target.value)}
-              required
-              type="date"
-              value={measuredOn}
-            />
-          </label>
-          <label>
-            Weight ({unit.toLowerCase()})
-            <input
-              inputMode="decimal"
-              min="1"
-              onChange={(event) => setWeight(event.target.value)}
-              required
-              step="0.1"
-              type="number"
-              value={weight}
-            />
-          </label>
-          <button className="button button-primary" disabled={create.isPending} type="submit">
+          <Input
+            label="Date"
+            max={today}
+            onChange={(event) => setMeasuredOn(event.target.value)}
+            required
+            type="date"
+            value={measuredOn}
+          />
+          <Input
+            inputMode="decimal"
+            label={`Weight (${unit.toLowerCase()})`}
+            min="1"
+            onChange={(event) => setWeight(event.target.value)}
+            required
+            step="0.1"
+            type="number"
+            value={weight}
+          />
+          <Button isLoading={create.isPending} loadingLabel="Saving…" type="submit">
             Save measurement
-          </button>
+          </Button>
           {create.isError ? (
             <p className="form-error" role="alert">
               {create.error.message}
@@ -106,11 +108,8 @@ export function BodyWeightPage() {
                 <div className="row-actions">
                   <button
                     onClick={() => {
-                      const next = window.prompt(
-                        `New weight (${unit.toLowerCase()})`,
-                        String(displayMass(entry.weightKg, unit)),
-                      );
-                      if (next) update.mutate({ id: entry.id, weightKg: canonicalWeight(next) });
+                      setEditing(entry);
+                      setEditingWeight(String(displayMass(entry.weightKg, unit)));
                     }}
                     type="button"
                   >
@@ -125,6 +124,44 @@ export function BodyWeightPage() {
           </ul>
         </div>
       </section>
+      <Dialog
+        description={`Measurement from ${editing?.measuredOn ?? ""}`}
+        isOpen={Boolean(editing)}
+        onClose={() => setEditing(null)}
+        title="Edit body weight"
+      >
+        <form
+          className="dialog-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!editing) return;
+            update.mutate(
+              { id: editing.id, weightKg: canonicalWeight(editingWeight) },
+              { onSuccess: () => setEditing(null) },
+            );
+          }}
+        >
+          <Input
+            autoFocus
+            inputMode="decimal"
+            label={`Weight (${unit.toLowerCase()})`}
+            min="1"
+            onChange={(event) => setEditingWeight(event.target.value)}
+            required
+            step="0.1"
+            type="number"
+            value={editingWeight}
+          />
+          <div className="dialog-actions">
+            <Button onClick={() => setEditing(null)} variant="secondary">
+              Cancel
+            </Button>
+            <Button isLoading={update.isPending} loadingLabel="Saving…" type="submit">
+              Save
+            </Button>
+          </div>
+        </form>
+      </Dialog>
     </main>
   );
 }

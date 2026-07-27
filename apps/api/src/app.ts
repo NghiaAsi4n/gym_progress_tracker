@@ -3,6 +3,12 @@ import cors from "cors";
 import express, { type NextFunction, type Request, type Response } from "express";
 
 import type { DatabaseStatus } from "./config/database.js";
+import {
+  createRateLimiter,
+  createSecurityHeaders,
+  enforceRequestLimits,
+  handleBodyParserError,
+} from "./middleware/security.js";
 import { createAuthenticateMiddleware } from "./modules/auth/auth.middleware.js";
 import { createAuthRouter } from "./modules/auth/auth.routes.js";
 import { createAuthService } from "./modules/auth/auth.service.js";
@@ -38,6 +44,7 @@ interface AppOptions {
     passwordScryptCost?: number;
   };
   databaseStatus: () => DatabaseStatus;
+  nodeEnv?: "development" | "test" | "production";
   webOrigin: string;
 }
 
@@ -70,14 +77,25 @@ export function createApp(options: AppOptions) {
   );
 
   app.disable("x-powered-by");
+  app.use(createSecurityHeaders(options.nodeEnv ?? "development"));
   app.use(
     cors({
+      allowedHeaders: ["Accept", "Authorization", "Content-Type"],
       credentials: true,
+      maxAge: 600,
+      methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
       origin: options.webOrigin,
     }),
   );
+  app.use(enforceRequestLimits);
+  app.use("/api/v1", createRateLimiter({ max: 300, windowMs: 15 * 60 * 1_000 }));
   app.use(express.json({ limit: "100kb" }));
-  app.use("/api/v1/auth", createAuthRouter(authService, refreshService, options.webOrigin));
+  app.use(handleBodyParserError);
+  app.use(
+    "/api/v1/auth",
+    createRateLimiter({ max: 30, windowMs: 15 * 60 * 1_000 }),
+    createAuthRouter(authService, refreshService, options.webOrigin),
+  );
   app.use("/api/v1/me", createUserRouter(authenticate, userService));
   app.use("/api/v1/exercises", createExerciseRouter(authenticate, exerciseService));
   app.use(

@@ -376,24 +376,24 @@ Implemented exercise catalog hardening and responsive UI, workout-template CRUD/
 
 ### Task 22: Security hardening
 
-- [ ] Thêm secure headers, rate limit và giới hạn payload/query.
-- [ ] Hoàn thiện cookie, CORS, Origin, validation và ownership policy.
-- [ ] Loại password, JWT và cookie khỏi log.
+- [x] Thêm secure headers, rate limit và giới hạn payload/query.
+- [x] Hoàn thiện cookie, CORS, Origin, validation và ownership policy.
+- [x] Loại password, JWT và cookie khỏi log.
 
 ### Task 23: Hardening accessibility cho shared UI primitives
 
-- [ ] Chuẩn hóa keyboard, semantics, focus management và reduced motion.
-- [ ] Hoàn thiện Button, Input, Dialog và AppShell dùng chung.
+- [x] Chuẩn hóa keyboard, semantics, focus management và reduced motion.
+- [x] Hoàn thiện Button, Input, Dialog và AppShell dùng chung.
 
 ### Task 24: Hoàn thiện responsive, i18n và theme
 
-- [ ] Hoàn thiện nội dung vi/en, xử lý text overflow và responsive.
-- [ ] Đồng bộ light/dark theme, contrast và visual hierarchy trên các trang chính.
+- [x] Hoàn thiện nội dung vi/en, xử lý text overflow và responsive.
+- [x] Đồng bộ light/dark theme, contrast và visual hierarchy trên các trang chính.
 
 ### Task 25: Seed và local setup
 
-- [ ] Tạo seed system exercises và dữ liệu demo theo cách idempotent.
-- [ ] Cập nhật README để máy mới có thể setup và chạy local.
+- [x] Tạo seed system exercises và dữ liệu demo theo cách idempotent.
+- [x] Cập nhật README để máy mới có thể setup và chạy local.
 
 ## Definition of Done
 

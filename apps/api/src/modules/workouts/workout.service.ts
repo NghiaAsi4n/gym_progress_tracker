@@ -2,7 +2,6 @@ import {
   type CreateWorkoutDraftRequest,
   type UpdateWorkoutDraftRequest,
   type Workout,
-  type WorkoutExercise,
   type WorkoutHistoryQuery,
 } from "@gym-tracking/contracts";
 import mongoose from "mongoose";

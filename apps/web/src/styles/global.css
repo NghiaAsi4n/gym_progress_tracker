@@ -34,13 +34,34 @@ a {
 
 button,
 a,
-input {
+input,
+select,
+textarea {
   -webkit-tap-highlight-color: transparent;
 }
 
-:where(button, a, input):focus-visible {
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
   outline: 0.1875rem solid var(--color-focus);
   outline-offset: var(--space-1);
+}
+
+:where(h1, h2, h3, p, a, span, strong, small, dd) {
+  overflow-wrap: anywhere;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-strong);
+  color: var(--color-text-on-strong);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 .sr-only {
@@ -123,9 +144,19 @@ input {
 
 .site-header nav {
   display: flex;
+  min-width: 0;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-4);
+  gap: var(--space-2) var(--space-4);
+}
+
+.site-header nav a.active {
+  color: var(--color-accent-strong);
+  text-decoration-thickness: 0.125rem;
+}
+
+#main-content {
+  min-width: 0;
 }
 
 .text-button {
@@ -394,6 +425,84 @@ h2 {
 .form-error {
   color: var(--color-danger, #b42318);
   margin: 0;
+}
+
+.field {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  min-height: 2.75rem;
+  border: var(--border-thin) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas-subtle);
+  color: var(--color-text);
+  font: inherit;
+  padding: var(--space-2) var(--space-3);
+}
+
+.field input[aria-invalid="true"] {
+  border-color: var(--color-danger, #b42318);
+}
+
+.field-error {
+  color: var(--color-danger, #b42318);
+}
+
+.dialog {
+  width: min(calc(100% - var(--space-8)), 32rem);
+  max-height: calc(100vh - var(--space-8));
+  padding: 0;
+  border: var(--border-thin) solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.dialog::backdrop {
+  background: color-mix(in srgb, #000 65%, transparent);
+}
+
+.dialog-panel {
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-raised);
+  padding: var(--space-5);
+}
+
+.dialog-panel > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: var(--border-thin) solid var(--color-border);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+}
+
+.dialog-panel > header button {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  border: var(--border-thin) solid var(--color-border);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.dialog-form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: var(--space-2);
 }
 
 .account-indicator {

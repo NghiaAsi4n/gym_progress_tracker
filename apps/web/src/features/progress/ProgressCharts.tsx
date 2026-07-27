@@ -4,6 +4,8 @@ import type { UnitPreference } from "../preferences/unit.js";
 
 const LB_PER_KG = 2.2046226218;
 
+// Shared presentation helper is colocated with the progress chart components.
+// eslint-disable-next-line react-refresh/only-export-components
 export function displayMass(valueKg: number, unit: UnitPreference): number {
   const value = unit === "LB" ? valueKg * LB_PER_KG : valueKg;
   return Math.round(value * 10) / 10;

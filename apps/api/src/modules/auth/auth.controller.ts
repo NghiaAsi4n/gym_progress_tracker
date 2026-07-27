@@ -50,6 +50,7 @@ export function createAuthController(
 ) {
   return {
     login: async (request: Request, response: Response): Promise<void> => {
+      assertTrustedOrigin(request, webOrigin);
       const input = validateInput(loginRequestSchema, request.body);
       const result = await authService.login(input);
       setRefreshCookie(response, result.refreshToken, refreshService.refreshCookieMaxAgeMs());
@@ -57,6 +58,7 @@ export function createAuthController(
     },
 
     register: async (request: Request, response: Response): Promise<void> => {
+      assertTrustedOrigin(request, webOrigin);
       const input = validateInput(registerRequestSchema, request.body);
       const result = await authService.register(input);
       setRefreshCookie(response, result.refreshToken, refreshService.refreshCookieMaxAgeMs());

@@ -22,6 +22,7 @@
     "predev": "npm run contracts:build",
     "pretest": "npm run contracts:build",
     "pretypecheck": "npm run contracts:build",
+    "seed": "npm run seed --workspace=@gym-tracking/api",
     "test": "npm run test --workspaces --if-present",
     "test:coverage": "npm run test:coverage --workspaces --if-present",
     "test:e2e": "npm run test:e2e --workspaces --if-present",

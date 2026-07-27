@@ -18,9 +18,11 @@ export function useWorkoutDraft(initialWorkout: Workout) {
   const lastSavedRef = useRef(editableSnapshot(initialWorkout));
 
   const updateExercises = useCallback((exercises: WorkoutExercise[]) => {
+    setSaveStatus("saving");
     setWorkout((current) => ({ ...current, exercises }));
   }, []);
   const updateNotes = useCallback((notes: string) => {
+    setSaveStatus("saving");
     setWorkout((current) => ({ ...current, notes }));
   }, []);
 
@@ -65,6 +67,6 @@ export function useWorkoutDraft(initialWorkout: Workout) {
     updateNotes,
     saveStatus,
     saveError,
-    isSynced: editableSnapshot(workout) === lastSavedRef.current && saveStatus === "saved",
+    isSynced: saveStatus === "saved",
   };
 }

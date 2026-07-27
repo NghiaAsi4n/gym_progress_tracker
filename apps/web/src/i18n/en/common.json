@@ -2,6 +2,13 @@
   "brandName": "Gym Progress Tracker",
   "navigationLabel": "Primary navigation",
   "overview": "Overview",
+  "skipToContent": "Skip to main content",
+  "navExercises": "Exercises",
+  "navTemplates": "Templates",
+  "navPlan": "Plan",
+  "navWorkout": "Workout",
+  "navHistory": "History",
+  "navProgress": "Progress",
   "themeGroupLabel": "Appearance",
   "themeLight": "Light",
   "themeDark": "Dark",
@@ -22,6 +29,6 @@
   "errorTitle": "Something went wrong",
   "errorDescription": "The application cannot display this content. Try loading this part of the interface again.",
   "errorRetry": "Try again",
-  "footer": "Experience foundation · Phase 2",
+  "footer": "Gym Progress Tracker · Ready to train",
   "missingTranslation": "Content unavailable"
 }
