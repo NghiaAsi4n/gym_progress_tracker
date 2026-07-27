@@ -5,6 +5,7 @@ import type { BodyWeight } from "@gym-tracking/contracts";
 import { Button } from "../../components/ui/Button.js";
 import { Dialog } from "../../components/ui/Dialog.js";
 import { Input } from "../../components/ui/Input.js";
+import { useI18n } from "../../i18n/i18n-context.js";
 import {
   createBodyWeight,
   deleteBodyWeight,
@@ -23,6 +24,7 @@ function addDays(date: string, days: number): string {
 }
 
 export function BodyWeightPage() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { unit } = useUnit();
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -59,14 +61,14 @@ export function BodyWeightPage() {
   return (
     <main className="progress-page">
       <header className="planning-heading">
-        <p className="eyebrow">Body metrics</p>
-        <h1>Track the trend, not the noise</h1>
+        <p className="eyebrow">{t("progress", "bodyMetricsEyebrow")}</p>
+        <h1>{t("progress", "bodyMetricsTitle")}</h1>
       </header>
       <section className="body-weight-layout">
         <form className="planning-panel planning-form" onSubmit={submit}>
-          <h2>Add measurement</h2>
+          <h2>{t("progress", "addMeasurement")}</h2>
           <Input
-            label="Date"
+            label={t("progress", "date")}
             max={today}
             onChange={(event) => setMeasuredOn(event.target.value)}
             required
@@ -75,7 +77,7 @@ export function BodyWeightPage() {
           />
           <Input
             inputMode="decimal"
-            label={`Weight (${unit.toLowerCase()})`}
+            label={`${t("progress", "weight")} (${unit.toLowerCase()})`}
             min="1"
             onChange={(event) => setWeight(event.target.value)}
             required
@@ -83,19 +85,19 @@ export function BodyWeightPage() {
             type="number"
             value={weight}
           />
-          <Button isLoading={create.isPending} loadingLabel="Saving…" type="submit">
-            Save measurement
+          <Button isLoading={create.isPending} loadingLabel={t("progress", "saving")} type="submit">
+            {t("progress", "saveMeasurement")}
           </Button>
           {create.isError ? (
             <p className="form-error" role="alert">
-              {create.error.message}
+              {t("progress", "saveMeasurementError")}
             </p>
           ) : null}
         </form>
         <div className="planning-panel">
-          <h2>Measurements</h2>
-          {entries.isPending ? <p role="status">Loading measurements…</p> : null}
-          {entries.data?.data.length === 0 ? <p>No measurements yet.</p> : null}
+          <h2>{t("progress", "measurements")}</h2>
+          {entries.isPending ? <p role="status">{t("progress", "loadingMeasurements")}</p> : null}
+          {entries.data?.data.length === 0 ? <p>{t("progress", "noMeasurements")}</p> : null}
           <ul className="body-weight-list">
             {[...(entries.data?.data ?? [])].reverse().map((entry) => (
               <li key={entry.id}>
@@ -113,10 +115,10 @@ export function BodyWeightPage() {
                     }}
                     type="button"
                   >
-                    Edit
+                    {t("progress", "edit")}
                   </button>
                   <button onClick={() => remove.mutate(entry.id)} type="button">
-                    Delete
+                    {t("progress", "delete")}
                   </button>
                 </div>
               </li>
@@ -125,10 +127,11 @@ export function BodyWeightPage() {
         </div>
       </section>
       <Dialog
-        description={`Measurement from ${editing?.measuredOn ?? ""}`}
+        closeLabel={t("progress", "closeDialog")}
+        description={`${t("progress", "measurementFrom")} ${editing?.measuredOn ?? ""}`}
         isOpen={Boolean(editing)}
         onClose={() => setEditing(null)}
-        title="Edit body weight"
+        title={t("progress", "editBodyWeight")}
       >
         <form
           className="dialog-form"
@@ -144,7 +147,7 @@ export function BodyWeightPage() {
           <Input
             autoFocus
             inputMode="decimal"
-            label={`Weight (${unit.toLowerCase()})`}
+            label={`${t("progress", "weight")} (${unit.toLowerCase()})`}
             min="1"
             onChange={(event) => setEditingWeight(event.target.value)}
             required
@@ -154,10 +157,14 @@ export function BodyWeightPage() {
           />
           <div className="dialog-actions">
             <Button onClick={() => setEditing(null)} variant="secondary">
-              Cancel
+              {t("progress", "cancel")}
             </Button>
-            <Button isLoading={update.isPending} loadingLabel="Saving…" type="submit">
-              Save
+            <Button
+              isLoading={update.isPending}
+              loadingLabel={t("progress", "saving")}
+              type="submit"
+            >
+              {t("progress", "save")}
             </Button>
           </div>
         </form>

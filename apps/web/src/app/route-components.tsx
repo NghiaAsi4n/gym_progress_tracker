@@ -50,7 +50,7 @@ export function AppShell() {
         </div>
         <div className="preference-controls">
           <LanguageSwitcher />
-          <UnitSwitcher label="Unit" />
+          <UnitSwitcher label={t("common", "unitLabel")} />
           <ThemeSwitcher
             groupLabel={t("common", "themeGroupLabel")}
             labels={{
@@ -70,7 +70,34 @@ export function AppShell() {
         </p>
       ) : null}
       <footer className="site-footer">
-        <small>{t("common", "footer")}</small>
+        <div className="footer-main">
+          <div className="footer-brand">
+            <Link to="/">
+              <span aria-hidden="true" className="brand-mark">
+                Ω
+              </span>
+              <strong>{t("common", "brandName")}</strong>
+            </Link>
+            <p>{t("common", "footerTagline")}</p>
+          </div>
+          <nav className="footer-links" aria-label={t("common", "footerNavigationLabel")}>
+            <Link to="/">{t("common", "overview")}</Link>
+            {status === "authenticated" ? (
+              <>
+                <Link to="/workouts/active">{t("common", "navWorkout")}</Link>
+                <Link to="/progress">{t("common", "navProgress")}</Link>
+              </>
+            ) : (
+              <Link to="/auth/login">{t("auth", "loginAction")}</Link>
+            )}
+          </nav>
+        </div>
+        <div className="footer-meta">
+          <small>
+            © {new Date().getFullYear()} {t("common", "brandName")}. {t("common", "copyrightLabel")}
+          </small>
+          <small>{t("common", "footerAccountNote")}</small>
+        </div>
       </footer>
     </div>
   );

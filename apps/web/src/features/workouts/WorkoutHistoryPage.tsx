@@ -2,20 +2,33 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { useI18n } from "../../i18n/i18n-context.js";
 import { getWorkout, listWorkoutHistory } from "../../services/workout-api.js";
 import { useUnit } from "../preferences/unit.js";
 
-function sourceName(source: Awaited<ReturnType<typeof getWorkout>>["data"]["source"]): string {
-  return source.type === "EMPTY" ? "Freestyle workout" : source.templateName;
+type Translate = ReturnType<typeof useI18n>["t"];
+
+function sourceName(
+  source: Awaited<ReturnType<typeof getWorkout>>["data"]["source"],
+  t: Translate,
+): string {
+  return source.type === "EMPTY" ? t("workouts", "freestyleWorkout") : source.templateName;
 }
 
-function formatDuration(seconds: number | null): string {
+function formatDuration(seconds: number | null, t: Translate): string {
   if (seconds === null) return "—";
   const minutes = Math.floor(seconds / 60);
-  return `${minutes} min`;
+  return `${minutes} ${t("workouts", "minutesShort")}`;
+}
+
+function workoutStatus(status: "ACTIVE" | "COMPLETED" | "CANCELLED", t: Translate) {
+  if (status === "ACTIVE") return t("workouts", "statusActive");
+  if (status === "COMPLETED") return t("workouts", "statusCompleted");
+  return t("workouts", "statusCancelled");
 }
 
 export function WorkoutHistoryPage() {
+  const { locale, t } = useI18n();
   const [page, setPage] = useState(1);
   const history = useQuery({
     queryKey: ["workout-history", page],
@@ -25,20 +38,20 @@ export function WorkoutHistoryPage() {
   return (
     <main className="workout-page">
       <header className="planning-heading">
-        <p className="eyebrow">Training archive</p>
-        <h1>Workout history</h1>
+        <p className="eyebrow">{t("workouts", "archiveEyebrow")}</p>
+        <h1>{t("workouts", "historyTitle")}</h1>
       </header>
-      {history.isPending ? <p role="status">Loading history…</p> : null}
+      {history.isPending ? <p role="status">{t("workouts", "loadingHistory")}</p> : null}
       {history.isError ? (
         <p className="form-error" role="alert">
-          {history.error.message}
+          {t("workouts", "loadHistoryError")}
         </p>
       ) : null}
       {history.data?.data.length === 0 ? (
         <div className="workout-empty">
-          <h2>No finished workouts yet</h2>
+          <h2>{t("workouts", "noFinishedWorkouts")}</h2>
           <Link className="button button-primary" to="/workouts/active">
-            Start a workout
+            {t("workouts", "startWorkout")}
           </Link>
         </div>
       ) : null}
@@ -47,17 +60,19 @@ export function WorkoutHistoryPage() {
           <li key={workout.id}>
             <Link to={`/workouts/history/${workout.id}`}>
               <div>
-                <span className="status-chip">{workout.status}</span>
-                <h2>{sourceName(workout.source)}</h2>
-                <small>{new Date(workout.startedAt).toLocaleString()}</small>
+                <span className="status-chip">{workoutStatus(workout.status, t)}</span>
+                <h2>{sourceName(workout.source, t)}</h2>
+                <small>
+                  {new Date(workout.startedAt).toLocaleString(locale === "vi" ? "vi-VN" : "en-US")}
+                </small>
               </div>
               <dl>
                 <div>
-                  <dt>Duration</dt>
-                  <dd>{formatDuration(workout.durationSeconds)}</dd>
+                  <dt>{t("workouts", "duration")}</dt>
+                  <dd>{formatDuration(workout.durationSeconds, t)}</dd>
                 </div>
                 <div>
-                  <dt>Exercises</dt>
+                  <dt>{t("workouts", "exercises")}</dt>
                   <dd>{workout.exercises.length}</dd>
                 </div>
               </dl>
@@ -66,9 +81,9 @@ export function WorkoutHistoryPage() {
         ))}
       </ul>
       {history.data && history.data.pagination.totalPages > 1 ? (
-        <nav className="pagination" aria-label="Workout history pages">
+        <nav className="pagination" aria-label={t("workouts", "historyPages")}>
           <button disabled={page === 1} onClick={() => setPage((value) => value - 1)} type="button">
-            Previous
+            {t("workouts", "previous")}
           </button>
           <span>
             {page} / {history.data.pagination.totalPages}
@@ -78,7 +93,7 @@ export function WorkoutHistoryPage() {
             onClick={() => setPage((value) => value + 1)}
             type="button"
           >
-            Next
+            {t("workouts", "next")}
           </button>
         </nav>
       ) : null}
@@ -87,6 +102,7 @@ export function WorkoutHistoryPage() {
 }
 
 export function WorkoutDetailPage() {
+  const { locale, t } = useI18n();
   const { id = "" } = useParams();
   const { unit } = useUnit();
   const workout = useQuery({
@@ -99,7 +115,7 @@ export function WorkoutDetailPage() {
   if (workout.isPending) {
     return (
       <main className="workout-page">
-        <p role="status">Loading workout…</p>
+        <p role="status">{t("workouts", "loadingWorkout")}</p>
       </main>
     );
   }
@@ -107,7 +123,7 @@ export function WorkoutDetailPage() {
     return (
       <main className="workout-page">
         <p className="form-error" role="alert">
-          {workout.error.message}
+          {t("workouts", "loadWorkoutError")}
         </p>
       </main>
     );
@@ -117,21 +133,21 @@ export function WorkoutDetailPage() {
   return (
     <main className="workout-page">
       <Link className="back-link" to="/workouts/history">
-        ← Workout history
+        ← {t("workouts", "backToHistory")}
       </Link>
       <header className="active-workout-header">
         <div>
-          <p className="eyebrow">{data.status}</p>
-          <h1>{sourceName(data.source)}</h1>
-          <p>{new Date(data.startedAt).toLocaleString()}</p>
+          <p className="eyebrow">{workoutStatus(data.status, t)}</p>
+          <h1>{sourceName(data.source, t)}</h1>
+          <p>{new Date(data.startedAt).toLocaleString(locale === "vi" ? "vi-VN" : "en-US")}</p>
         </div>
         <dl className="workout-summary">
           <div>
-            <dt>Duration</dt>
-            <dd>{formatDuration(data.durationSeconds)}</dd>
+            <dt>{t("workouts", "duration")}</dt>
+            <dd>{formatDuration(data.durationSeconds, t)}</dd>
           </div>
           <div>
-            <dt>Volume</dt>
+            <dt>{t("workouts", "volume")}</dt>
             <dd>
               {data.volumeKg === null
                 ? "—"
@@ -139,11 +155,11 @@ export function WorkoutDetailPage() {
             </dd>
           </div>
           <div>
-            <dt>Calories</dt>
+            <dt>{t("workouts", "calories")}</dt>
             <dd>
               {data.calorieEstimate
                 ? `≈ ${data.calorieEstimate.estimatedCalories} kcal`
-                : "Not estimated"}
+                : t("workouts", "notEstimated")}
             </dd>
           </div>
         </dl>
@@ -155,12 +171,18 @@ export function WorkoutDetailPage() {
             <ol className="history-set-list">
               {exercise.sets.map((set) => (
                 <li key={set.id}>
-                  <span>Set {set.order + 1}</span>
+                  <span>
+                    {t("workouts", "set")} {set.order + 1}
+                  </span>
                   <strong>
-                    {set.weightKg === null ? "—" : Math.round(set.weightKg * weightFactor * 10) / 10}{" "}
+                    {set.weightKg === null
+                      ? "—"
+                      : Math.round(set.weightKg * weightFactor * 10) / 10}{" "}
                     {unit.toLowerCase()} × {set.reps ?? "—"}
                   </strong>
-                  <span>{set.isComplete ? "Completed" : "Not completed"}</span>
+                  <span>
+                    {set.isComplete ? t("workouts", "completed") : t("workouts", "notCompleted")}
+                  </span>
                 </li>
               ))}
             </ol>
@@ -169,7 +191,7 @@ export function WorkoutDetailPage() {
       </div>
       {data.notes ? (
         <section className="workout-notes-readonly">
-          <h2>Session notes</h2>
+          <h2>{t("workouts", "sessionNotes")}</h2>
           <p>{data.notes}</p>
         </section>
       ) : null}

@@ -14,6 +14,7 @@ import {
   createWorkoutDraft,
   getActiveWorkout,
 } from "../../services/workout-api.js";
+import { useI18n } from "../../i18n/i18n-context.js";
 import { useUnit } from "../preferences/unit.js";
 import { useWorkoutDraft } from "./useWorkoutDraft.js";
 import { WorkoutExerciseEditor } from "./WorkoutExerciseEditor.js";
@@ -30,6 +31,7 @@ function newId(): string {
 }
 
 function WorkoutStartPanel({ onStarted }: { onStarted: () => void }) {
+  const { t } = useI18n();
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const templates = useQuery({ queryKey: ["templates"], queryFn: listTemplates });
   const calendar = useQuery({
@@ -46,20 +48,20 @@ function WorkoutStartPanel({ onStarted }: { onStarted: () => void }) {
   return (
     <section className="workout-start-grid">
       <div className="workout-start-primary">
-        <p className="eyebrow">Start now</p>
-        <h2>Blank canvas</h2>
-        <p>Build today’s session exercise by exercise.</p>
+        <p className="eyebrow">{t("workouts", "startNow")}</p>
+        <h2>{t("workouts", "blankCanvas")}</h2>
+        <p>{t("workouts", "blankDescription")}</p>
         <button
           className="button button-primary"
           disabled={start.isPending}
           onClick={() => start.mutate({ source: { type: "EMPTY" } })}
           type="button"
         >
-          Start empty workout
+          {t("workouts", "startEmptyWorkout")}
         </button>
       </div>
       <div className="workout-start-options">
-        <h2>From your plan</h2>
+        <h2>{t("workouts", "fromPlan")}</h2>
         {calendar.data?.data.length ? (
           <ul className="workout-option-list">
             {calendar.data.data.map((workout) => (
@@ -82,21 +84,23 @@ function WorkoutStartPanel({ onStarted }: { onStarted: () => void }) {
                   }
                   type="button"
                 >
-                  Start
+                  {t("workouts", "start")}
                 </button>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="helper-text">No scheduled workout in the next seven days.</p>
+          <p className="helper-text">{t("workouts", "noScheduledWorkout")}</p>
         )}
-        <h2>From a template</h2>
+        <h2>{t("workouts", "fromTemplate")}</h2>
         <ul className="workout-option-list">
           {templates.data?.data.map((template) => (
             <li key={template.id}>
               <div>
                 <strong>{template.name}</strong>
-                <small>{template.exercises.length} exercises</small>
+                <small>
+                  {template.exercises.length} {t("workouts", "exerciseCount")}
+                </small>
               </div>
               <button
                 disabled={start.isPending}
@@ -105,14 +109,14 @@ function WorkoutStartPanel({ onStarted }: { onStarted: () => void }) {
                 }
                 type="button"
               >
-                Start
+                {t("workouts", "start")}
               </button>
             </li>
           ))}
         </ul>
         {start.isError ? (
           <p className="form-error" role="alert">
-            {start.error.message}
+            {t("workouts", "startWorkoutError")}
           </p>
         ) : null}
       </div>
@@ -121,6 +125,7 @@ function WorkoutStartPanel({ onStarted }: { onStarted: () => void }) {
 }
 
 function ActiveSession({ initialWorkout }: { initialWorkout: Workout }) {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { unit } = useUnit();
@@ -144,7 +149,8 @@ function ActiveSession({ initialWorkout }: { initialWorkout: Workout }) {
 
   function addExercise() {
     const exercise = exercises.data?.data.find(({ id }) => id === exerciseId);
-    if (!exercise || draft.workout.exercises.some(({ exerciseId: id }) => id === exercise.id)) return;
+    if (!exercise || draft.workout.exercises.some(({ exerciseId: id }) => id === exercise.id))
+      return;
     const next: WorkoutExercise = {
       id: newId(),
       exerciseId: exercise.id,
@@ -164,7 +170,7 @@ function ActiveSession({ initialWorkout }: { initialWorkout: Workout }) {
   }
 
   function sourceLabel(): string {
-    if (draft.workout.source.type === "EMPTY") return "Freestyle workout";
+    if (draft.workout.source.type === "EMPTY") return t("workouts", "freestyleWorkout");
     return draft.workout.source.templateName;
   }
 
@@ -172,14 +178,14 @@ function ActiveSession({ initialWorkout }: { initialWorkout: Workout }) {
     <>
       <header className="active-workout-header">
         <div>
-          <p className="eyebrow">Active workout</p>
+          <p className="eyebrow">{t("workouts", "activeWorkout")}</p>
           <h1>{sourceLabel()}</h1>
           <p className={`save-state save-state-${draft.saveStatus}`} aria-live="polite">
             {draft.saveStatus === "saving"
-              ? "Saving…"
+              ? t("workouts", "saving")
               : draft.saveStatus === "error"
-                ? draft.saveError
-                : "All changes saved"}
+                ? t("workouts", "saveFailed")
+                : t("workouts", "allChangesSaved")}
           </p>
         </div>
         <div className="workout-close-actions">
@@ -188,7 +194,7 @@ function ActiveSession({ initialWorkout }: { initialWorkout: Workout }) {
             onClick={() => close.mutate({ action: "cancel", version: draft.workout.version })}
             type="button"
           >
-            Cancel workout
+            {t("workouts", "cancelWorkout")}
           </button>
           <button
             className="button button-primary"
@@ -196,17 +202,19 @@ function ActiveSession({ initialWorkout }: { initialWorkout: Workout }) {
             onClick={() => close.mutate({ action: "complete", version: draft.workout.version })}
             type="button"
           >
-            Complete
+            {t("workouts", "complete")}
           </button>
         </div>
       </header>
       <div className="workout-add-exercise">
         <label>
-          Add exercise
+          {t("workouts", "addExercise")}
           <select onChange={(event) => setExerciseId(event.target.value)} value={exerciseId}>
-            <option value="">Choose from catalog</option>
+            <option value="">{t("workouts", "chooseFromCatalog")}</option>
             {exercises.data?.data
-              .filter(({ id }) => !draft.workout.exercises.some(({ exerciseId }) => exerciseId === id))
+              .filter(
+                ({ id }) => !draft.workout.exercises.some(({ exerciseId }) => exerciseId === id),
+              )
               .map((exercise) => (
                 <option key={exercise.id} value={exercise.id}>
                   {exercise.name}
@@ -215,13 +223,13 @@ function ActiveSession({ initialWorkout }: { initialWorkout: Workout }) {
           </select>
         </label>
         <button disabled={!exerciseId} onClick={addExercise} type="button">
-          Add
+          {t("workouts", "add")}
         </button>
       </div>
       <div className="workout-exercise-list">
         {draft.workout.exercises.length === 0 ? (
           <p className="workout-empty" role="status">
-            Add your first exercise to begin logging.
+            {t("workouts", "emptyWorkout")}
           </p>
         ) : null}
         {draft.workout.exercises.map((exercise, index) => (
@@ -253,18 +261,18 @@ function ActiveSession({ initialWorkout }: { initialWorkout: Workout }) {
         ))}
       </div>
       <label className="workout-notes">
-        Session notes
+        {t("workouts", "sessionNotes")}
         <textarea
           maxLength={2000}
           onChange={(event) => draft.updateNotes(event.target.value)}
-          placeholder="Technique cues, energy, pain or wins…"
+          placeholder={t("workouts", "notesPlaceholder")}
           rows={4}
           value={draft.workout.notes}
         />
       </label>
       {close.isError ? (
         <p className="form-error" role="alert">
-          {close.error.message}
+          {t("workouts", "closeWorkoutError")}
         </p>
       ) : null}
     </>
@@ -272,6 +280,7 @@ function ActiveSession({ initialWorkout }: { initialWorkout: Workout }) {
 }
 
 export function ActiveWorkoutPage() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const active = useQuery({
     queryKey: ["active-workout"],
@@ -281,10 +290,10 @@ export function ActiveWorkoutPage() {
 
   return (
     <main className="workout-page">
-      {active.isPending ? <p role="status">Loading active workout…</p> : null}
+      {active.isPending ? <p role="status">{t("workouts", "loadingActiveWorkout")}</p> : null}
       {active.isError ? (
         <p className="form-error" role="alert">
-          {active.error.message}
+          {t("workouts", "loadActiveWorkoutError")}
         </p>
       ) : null}
       {active.data?.data ? (
@@ -292,8 +301,8 @@ export function ActiveWorkoutPage() {
       ) : active.isSuccess ? (
         <>
           <header className="planning-heading">
-            <p className="eyebrow">Workout execution</p>
-            <h1>Put the plan under load</h1>
+            <p className="eyebrow">{t("workouts", "executionEyebrow")}</p>
+            <h1>{t("workouts", "executionTitle")}</h1>
           </header>
           <WorkoutStartPanel
             onStarted={() => void queryClient.invalidateQueries({ queryKey: ["active-workout"] })}

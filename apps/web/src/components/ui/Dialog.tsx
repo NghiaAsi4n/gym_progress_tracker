@@ -2,13 +2,14 @@ import { useEffect, useId, useRef, type ReactNode } from "react";
 
 interface DialogProps {
   children: ReactNode;
+  closeLabel: string;
   description?: string;
   isOpen: boolean;
   onClose: () => void;
   title: string;
 }
 
-export function Dialog({ children, description, isOpen, onClose, title }: DialogProps) {
+export function Dialog({ children, closeLabel, description, isOpen, onClose, title }: DialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
@@ -47,7 +48,7 @@ export function Dialog({ children, description, isOpen, onClose, title }: Dialog
             <h2 id={titleId}>{title}</h2>
             {description ? <p id={descriptionId}>{description}</p> : null}
           </div>
-          <button aria-label="Close dialog" onClick={onClose} type="button">
+          <button aria-label={closeLabel} onClick={onClose} type="button">
             ×
           </button>
         </header>

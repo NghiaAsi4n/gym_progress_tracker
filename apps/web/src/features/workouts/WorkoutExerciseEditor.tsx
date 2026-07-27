@@ -1,5 +1,6 @@
 import type { WorkoutExercise } from "@gym-tracking/contracts";
 
+import { useI18n } from "../../i18n/i18n-context.js";
 import type { UnitPreference } from "../preferences/unit.js";
 
 interface Props {
@@ -41,6 +42,8 @@ export function WorkoutExerciseEditor({
   onMove,
   onRemove,
 }: Props) {
+  const { t } = useI18n();
+
   return (
     <article className="workout-exercise">
       <header className="workout-exercise-heading">
@@ -49,30 +52,50 @@ export function WorkoutExerciseEditor({
           <h2>{exercise.name}</h2>
         </div>
         <div className="row-actions">
-          <button disabled={index === 0} onClick={() => onMove(-1)} type="button">
+          <button
+            aria-label={`${t("workouts", "moveExerciseUp")} ${exercise.name}`}
+            disabled={index === 0}
+            onClick={() => onMove(-1)}
+            type="button"
+          >
             ↑
           </button>
-          <button disabled={index === total - 1} onClick={() => onMove(1)} type="button">
+          <button
+            aria-label={`${t("workouts", "moveExerciseDown")} ${exercise.name}`}
+            disabled={index === total - 1}
+            onClick={() => onMove(1)}
+            type="button"
+          >
             ↓
           </button>
-          <button onClick={onRemove} type="button">
-            Remove
+          <button
+            aria-label={`${t("workouts", "remove")} ${exercise.name}`}
+            onClick={onRemove}
+            type="button"
+          >
+            {t("workouts", "remove")}
           </button>
         </div>
       </header>
-      <div className="set-table" role="group" aria-label={`${exercise.name} sets`}>
+      <div
+        className="set-table"
+        role="group"
+        aria-label={`${exercise.name} ${t("workouts", "setsLabel")}`}
+      >
         <div className="set-row set-row-heading" aria-hidden="true">
-          <span>Set</span>
+          <span>{t("workouts", "set")}</span>
           <span>{unit.toLowerCase()}</span>
-          <span>Reps</span>
-          <span>Done</span>
+          <span>{t("workouts", "reps")}</span>
+          <span>{t("workouts", "done")}</span>
           <span />
         </div>
         {exercise.sets.map((set, setIndex) => (
           <div className="set-row" key={set.id}>
             <strong>{setIndex + 1}</strong>
             <label>
-              <span className="sr-only">Weight for set {setIndex + 1}</span>
+              <span className="sr-only">
+                {t("workouts", "weightForSet")} {setIndex + 1}
+              </span>
               <input
                 inputMode="decimal"
                 min="0"
@@ -89,7 +112,9 @@ export function WorkoutExerciseEditor({
               />
             </label>
             <label>
-              <span className="sr-only">Reps for set {setIndex + 1}</span>
+              <span className="sr-only">
+                {t("workouts", "repsForSet")} {setIndex + 1}
+              </span>
               <input
                 inputMode="numeric"
                 min="0"
@@ -105,7 +130,9 @@ export function WorkoutExerciseEditor({
               />
             </label>
             <label className="set-complete">
-              <span className="sr-only">Complete set {setIndex + 1}</span>
+              <span className="sr-only">
+                {t("workouts", "completeSet")} {setIndex + 1}
+              </span>
               <input
                 checked={set.isComplete}
                 onChange={(event) => {
@@ -118,7 +145,7 @@ export function WorkoutExerciseEditor({
               />
             </label>
             <button
-              aria-label={`Remove set ${setIndex + 1}`}
+              aria-label={`${t("workouts", "removeSet")} ${setIndex + 1}`}
               onClick={() =>
                 onChange({
                   ...exercise,
@@ -154,7 +181,7 @@ export function WorkoutExerciseEditor({
         }
         type="button"
       >
-        + Add set
+        + {t("workouts", "addSet")}
       </button>
     </article>
   );

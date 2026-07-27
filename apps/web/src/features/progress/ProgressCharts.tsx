@@ -1,5 +1,6 @@
 import type { BodyWeight, ExerciseProgress } from "@gym-tracking/contracts";
 
+import { useI18n } from "../../i18n/i18n-context.js";
 import type { UnitPreference } from "../preferences/unit.js";
 
 const LB_PER_KG = 2.2046226218;
@@ -42,11 +43,13 @@ export function ExerciseProgressChart({
   progress: ExerciseProgress;
   unit: UnitPreference;
 }) {
+  const { t } = useI18n();
+
   return (
     <article className="progress-chart-card">
       <header>
         <div>
-          <p className="eyebrow">Exercise trend</p>
+          <p className="eyebrow">{t("progress", "exerciseTrend")}</p>
           <h2>{progress.exerciseName}</h2>
         </div>
         <strong>
@@ -54,7 +57,7 @@ export function ExerciseProgressChart({
         </strong>
       </header>
       <BarSeries
-        label={`${progress.exerciseName} estimated one rep max trend`}
+        label={`${progress.exerciseName} ${t("progress", "estimatedOneRepMaxTrend")}`}
         points={progress.timeSeries.map((point) => ({
           key: point.date,
           value: point.estimated1RmKg,
@@ -63,17 +66,17 @@ export function ExerciseProgressChart({
       />
       <dl className="progress-metrics">
         <div>
-          <dt>Best weight</dt>
+          <dt>{t("progress", "bestWeight")}</dt>
           <dd>
             {displayMass(progress.bestWeightKg, unit)} {unit.toLowerCase()}
           </dd>
         </div>
         <div>
-          <dt>Weekly sets</dt>
+          <dt>{t("progress", "weeklySets")}</dt>
           <dd>{progress.weeklySets}</dd>
         </div>
         <div>
-          <dt>PRs</dt>
+          <dt>{t("progress", "personalRecords")}</dt>
           <dd>{progress.prDates.length}</dd>
         </div>
       </dl>
@@ -88,22 +91,24 @@ export function BodyWeightChart({
   entries: BodyWeight[];
   unit: UnitPreference;
 }) {
+  const { t } = useI18n();
+
   return (
     <article className="progress-chart-card">
       <header>
         <div>
-          <p className="eyebrow">Body weight</p>
-          <h2>Weight trend</h2>
+          <p className="eyebrow">{t("progress", "bodyWeight")}</p>
+          <h2>{t("progress", "weightTrend")}</h2>
         </div>
         <strong>
           {entries.length
             ? `${displayMass(entries.at(-1)!.weightKg, unit)} ${unit.toLowerCase()}`
-            : "No data"}
+            : t("progress", "noData")}
         </strong>
       </header>
       {entries.length ? (
         <BarSeries
-          label="Body weight trend"
+          label={t("progress", "bodyWeightTrend")}
           points={entries.map((entry) => ({
             key: entry.id,
             value: entry.weightKg,
@@ -111,7 +116,7 @@ export function BodyWeightChart({
           }))}
         />
       ) : (
-        <p className="helper-text">Add body weight to unlock this trend.</p>
+        <p className="helper-text">{t("progress", "addWeightHint")}</p>
       )}
     </article>
   );

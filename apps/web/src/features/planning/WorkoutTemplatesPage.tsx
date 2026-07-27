@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 
+import { useI18n } from "../../i18n/i18n-context.js";
 import {
   createTemplate,
   deleteTemplate,
@@ -10,6 +11,7 @@ import {
 } from "../../services/planning-api.js";
 
 export function WorkoutTemplatesPage() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [exerciseIds, setExerciseIds] = useState<string[]>([]);
@@ -43,18 +45,18 @@ export function WorkoutTemplatesPage() {
   return (
     <main className="planning-page">
       <header className="planning-heading">
-        <p className="eyebrow">Workout templates</p>
-        <h1>Compose repeatable training</h1>
+        <p className="eyebrow">{t("planning", "templatesEyebrow")}</p>
+        <h1>{t("planning", "templatesTitle")}</h1>
       </header>
       <section className="planning-grid">
         <form className="planning-panel planning-form" onSubmit={submit}>
-          <h2>New template</h2>
+          <h2>{t("planning", "newTemplate")}</h2>
           <label>
-            Template name
+            {t("planning", "templateName")}
             <input onChange={(event) => setName(event.target.value)} required value={name} />
           </label>
           <label>
-            Add exercise
+            {t("planning", "addExercise")}
             <select
               onChange={(event) => {
                 const id = event.target.value;
@@ -62,7 +64,7 @@ export function WorkoutTemplatesPage() {
               }}
               value=""
             >
-              <option value="">Choose an exercise</option>
+              <option value="">{t("planning", "chooseExercise")}</option>
               {exercises.data?.data.map((exercise) => (
                 <option key={exercise.id} value={exercise.id}>
                   {exercise.name}
@@ -78,13 +80,15 @@ export function WorkoutTemplatesPage() {
             ))}
           </ol>
           <button className="button button-primary" type="submit">
-            Create template
+            {t("planning", "createTemplate")}
           </button>
         </form>
         <div className="planning-panel">
-          <h2>Your templates</h2>
-          {templates.isPending ? <p role="status">Loading templates…</p> : null}
-          {templates.data?.data.length === 0 ? <p role="status">No templates yet.</p> : null}
+          <h2>{t("planning", "yourTemplates")}</h2>
+          {templates.isPending ? <p role="status">{t("planning", "loadingTemplates")}</p> : null}
+          {templates.data?.data.length === 0 ? (
+            <p role="status">{t("planning", "noTemplates")}</p>
+          ) : null}
           <ul className="planning-list">
             {templates.data?.data.map((template) => (
               <li key={template.id}>
@@ -105,10 +109,10 @@ export function WorkoutTemplatesPage() {
                     }
                     type="button"
                   >
-                    Reverse order
+                    {t("planning", "reverseOrder")}
                   </button>
                   <button onClick={() => remove.mutate(template.id)} type="button">
-                    Delete
+                    {t("planning", "delete")}
                   </button>
                 </div>
               </li>

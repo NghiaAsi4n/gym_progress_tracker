@@ -1,5 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -86,10 +86,10 @@ describe("application shell", () => {
 
     renderRoute("/auth/register");
     await user.type(screen.getByLabelText("Email"), email);
-    await user.type(screen.getByLabelText("Mat khau"), "SignupPassword1!");
-    await user.click(screen.getByRole("button", { name: "Dang ky" }));
+    await user.type(screen.getByLabelText("Mật khẩu"), "SignupPassword1!");
+    await user.click(screen.getByRole("button", { name: "Đăng ký" }));
 
-    expect(await screen.findByText(`Dang dang nhap voi ${email}`)).toBeVisible();
+    expect(await screen.findByText(`Đang đăng nhập với ${email}`)).toBeVisible();
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:4000/api/v1/auth/register",
       expect.objectContaining({
@@ -161,13 +161,18 @@ describe("application shell", () => {
     renderRoute("/");
     await user.selectOptions(screen.getByRole("combobox", { name: "Ngôn ngữ" }), "en");
 
-    expect(screen.getByRole("link", { name: "Overview" })).toBeVisible();
+    expect(
+      within(screen.getByRole("navigation", { name: "Primary navigation" })).getByRole("link", {
+        name: "Overview",
+      }),
+    ).toBeVisible();
     expect(screen.getByRole("heading", { name: "Service connection" })).toBeVisible();
     expect(
       screen.getByText(
         "The foundation is ready for workout planning, set logging, and progress tracking.",
       ),
     ).toBeVisible();
+    expect(screen.getByText("Plan with intent. Train with evidence.")).toBeVisible();
   });
 
   it("lets the user recover from a render error", async () => {

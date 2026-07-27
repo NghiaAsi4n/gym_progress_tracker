@@ -4,6 +4,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
+import { I18nProvider } from "../../i18n/index.js";
+import type { Locale } from "../../i18n/resources.js";
 import * as api from "../../services/planning-api.js";
 import { ExerciseCatalogPage } from "./ExerciseCatalogPage.js";
 import { TrainingPlannerPage } from "./TrainingPlannerPage.js";
@@ -24,13 +26,15 @@ const exercise: Exercise = {
   updatedAt: "2026-07-27T00:00:00.000Z",
 };
 
-function renderPage(page: React.ReactNode) {
+function renderPage(page: React.ReactNode, locale: Locale = "en") {
   return render(
-    <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-    >
-      {page}
-    </QueryClientProvider>,
+    <I18nProvider initialLocale={locale}>
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        {page}
+      </QueryClientProvider>
+    </I18nProvider>,
   );
 }
 
@@ -59,6 +63,21 @@ describe("Phase 4 planning UI", () => {
       expect.objectContaining({ name: "Core hold" }),
       expect.anything(),
     );
+  });
+
+  it("renders the exercise workflow in Vietnamese", async () => {
+    vi.mocked(api.listExercises).mockResolvedValue({
+      data: [exercise],
+      pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 },
+    });
+
+    renderPage(<ExerciseCatalogPage />, "vi");
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Xây dựng thư viện động tác" }),
+    ).toBeVisible();
+    expect(screen.getByRole("searchbox", { name: "Tìm bài tập" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Tạo bài tập" })).toBeVisible();
   });
 
   it("lets the user enter a new name for a custom exercise", async () => {

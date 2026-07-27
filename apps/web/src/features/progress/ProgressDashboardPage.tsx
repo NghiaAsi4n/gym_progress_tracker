@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { useI18n } from "../../i18n/i18n-context.js";
 import { listWorkoutHistory } from "../../services/workout-api.js";
 import {
   listBodyWeights,
@@ -18,6 +19,7 @@ function addDays(date: string, days: number): string {
 }
 
 export function ProgressDashboardPage() {
+  const { locale, t } = useI18n();
   const queryClient = useQueryClient();
   const { unit } = useUnit();
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
@@ -51,29 +53,29 @@ export function ProgressDashboardPage() {
     <main className="progress-page">
       <header className="progress-header">
         <div>
-          <p className="eyebrow">Progress dashboard</p>
-          <h1>Evidence of the work</h1>
+          <p className="eyebrow">{t("progress", "dashboardEyebrow")}</p>
+          <h1>{t("progress", "dashboardTitle")}</h1>
         </div>
         <label>
-          Time range
+          {t("progress", "timeRange")}
           <select onChange={(event) => setDays(Number(event.target.value))} value={days}>
-            <option value={30}>30 days</option>
-            <option value={90}>90 days</option>
-            <option value={365}>1 year</option>
+            <option value={30}>{t("progress", "days30")}</option>
+            <option value={90}>{t("progress", "days90")}</option>
+            <option value={365}>{t("progress", "year1")}</option>
           </select>
         </label>
       </header>
-      <section className="progress-summary-grid" aria-label="Progress summary">
+      <section className="progress-summary-grid" aria-label={t("progress", "progressSummary")}>
         <article>
-          <span>Completed workouts</span>
+          <span>{t("progress", "completedWorkouts")}</span>
           <strong>{completed.length}</strong>
         </article>
         <article>
-          <span>Estimated calories</span>
+          <span>{t("progress", "estimatedCalories")}</span>
           <strong>{totalCalories || "—"}</strong>
         </article>
         <article>
-          <span>Latest weight</span>
+          <span>{t("progress", "latestWeight")}</span>
           <strong>
             {latestWeight
               ? `${displayMass(latestWeight.weightKg, unit)} ${unit.toLowerCase()}`
@@ -81,21 +83,21 @@ export function ProgressDashboardPage() {
           </strong>
         </article>
         <article>
-          <span>Top exercise</span>
+          <span>{t("progress", "topExercise")}</span>
           <strong>{topExercise?.exerciseName ?? "—"}</strong>
         </article>
       </section>
       <div className="progress-actions">
         <Link className="button button-primary" to="/progress/body-weight">
-          Log body weight
+          {t("progress", "logBodyWeight")}
         </Link>
       </div>
       {(exerciseProgress.isPending || bodyWeights.isPending || workouts.isPending) && (
-        <p role="status">Loading progress…</p>
+        <p role="status">{t("progress", "loadingProgress")}</p>
       )}
       {(exerciseProgress.isError || bodyWeights.isError || workouts.isError) && (
         <p className="form-error" role="alert">
-          Unable to load one or more progress widgets.
+          {t("progress", "loadProgressError")}
         </p>
       )}
       <section className="progress-chart-grid">
@@ -106,25 +108,30 @@ export function ProgressDashboardPage() {
       </section>
       {exerciseProgress.data?.data.length === 0 ? (
         <div className="workout-empty">
-          <h2>No exercise progress in this range</h2>
-          <p>Complete weighted sets to build your trend.</p>
+          <h2>{t("progress", "noExerciseProgress")}</h2>
+          <p>{t("progress", "completeSetsHint")}</p>
         </div>
       ) : null}
       <section className="calorie-panel">
         <div className="panel-title-row">
           <div>
             <p className="eyebrow">MET v1</p>
-            <h2>Calorie estimates</h2>
+            <h2>{t("progress", "calorieEstimates")}</h2>
           </div>
-          <span className="status-chip">Estimates only</span>
+          <span className="status-chip">{t("progress", "estimatesOnly")}</span>
         </div>
         <ul className="calorie-list">
           {completed.slice(0, 5).map((workout) => (
             <li key={workout.id}>
               <div>
-                <strong>{new Date(workout.startedAt).toLocaleDateString()}</strong>
+                <strong>
+                  {new Date(workout.startedAt).toLocaleDateString(
+                    locale === "vi" ? "vi-VN" : "en-US",
+                  )}
+                </strong>
                 <small>
-                  {workout.durationSeconds ? Math.round(workout.durationSeconds / 60) : 0} min
+                  {workout.durationSeconds ? Math.round(workout.durationSeconds / 60) : 0}{" "}
+                  {t("progress", "minutesShort")}
                 </small>
               </div>
               {workout.calorieEstimate ? (
@@ -135,7 +142,7 @@ export function ProgressDashboardPage() {
                   onClick={() => recalculate.mutate(workout.id)}
                   type="button"
                 >
-                  Calculate
+                  {t("progress", "calculate")}
                 </button>
               )}
             </li>
@@ -143,7 +150,7 @@ export function ProgressDashboardPage() {
         </ul>
         {recalculate.isError ? (
           <p className="form-error" role="alert">
-            {recalculate.error.message}
+            {t("progress", "calculateError")}
           </p>
         ) : null}
       </section>

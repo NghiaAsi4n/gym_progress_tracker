@@ -10,14 +10,28 @@ import type {
   MuscleGroup,
 } from "@gym-tracking/contracts";
 
+import { useI18n } from "../../i18n/i18n-context.js";
 import {
   createExercise,
   deleteExercise,
   listExercises,
   updateExercise,
 } from "../../services/planning-api.js";
+import {
+  DIFFICULTY_LABELS,
+  EQUIPMENT_LABELS,
+  MOVEMENT_LABELS,
+  MUSCLE_LABELS,
+  optionEntries,
+} from "./planning-labels.js";
+
+const MUSCLE_OPTIONS = optionEntries(MUSCLE_LABELS);
+const MOVEMENT_OPTIONS = optionEntries(MOVEMENT_LABELS);
+const EQUIPMENT_OPTIONS = optionEntries(EQUIPMENT_LABELS);
+const DIFFICULTY_OPTIONS = optionEntries(DIFFICULTY_LABELS);
 
 export function ExerciseCatalogPage() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup | "">("");
@@ -64,6 +78,7 @@ export function ExerciseCatalogPage() {
   }
 
   function beginRename(exercise: Exercise) {
+    update.reset();
     setEditingExercise(exercise);
     setEditName(exercise.name);
   }
@@ -78,47 +93,50 @@ export function ExerciseCatalogPage() {
   return (
     <main className="planning-page">
       <header className="planning-heading">
-        <p className="eyebrow">Exercise catalog</p>
-        <h1>Build your movement library</h1>
+        <p className="eyebrow">{t("planning", "catalogEyebrow")}</p>
+        <h1>{t("planning", "catalogTitle")}</h1>
       </header>
-      <section className="planning-toolbar" aria-label="Exercise filters">
+      <section className="planning-toolbar" aria-label={t("planning", "exerciseFilters")}>
         <label>
-          Search exercises
+          {t("planning", "searchExercises")}
           <input
-            aria-label="Search exercises"
+            aria-label={t("planning", "searchExercises")}
             onChange={(event) => setName(event.target.value)}
             type="search"
             value={name}
           />
         </label>
         <label>
-          Muscle group
+          {t("planning", "muscleGroup")}
           <select
             onChange={(event) => setMuscleGroup(event.target.value as MuscleGroup | "")}
             value={muscleGroup}
           >
-            <option value="">All groups</option>
-            <option value="CHEST">Chest</option>
-            <option value="BACK">Back</option>
-            <option value="LEGS">Legs</option>
-            <option value="CORE">Core</option>
+            <option value="">{t("planning", "allGroups")}</option>
+            {MUSCLE_OPTIONS.map(([value, label]) => (
+              <option key={value} value={value}>
+                {t("planning", label)}
+              </option>
+            ))}
           </select>
         </label>
       </section>
 
       <section className="planning-grid">
         <div className="planning-panel">
-          <h2>Exercises</h2>
-          {exercises.isPending ? <p role="status">Loading exercises…</p> : null}
-          {exercises.isError ? <p role="alert">Could not load exercises.</p> : null}
-          {exercises.data?.data.length === 0 ? <p role="status">No exercises found.</p> : null}
+          <h2>{t("planning", "exercises")}</h2>
+          {exercises.isPending ? <p role="status">{t("planning", "loadingExercises")}</p> : null}
+          {exercises.isError ? <p role="alert">{t("planning", "loadExercisesError")}</p> : null}
+          {exercises.data?.data.length === 0 ? (
+            <p role="status">{t("planning", "noExercises")}</p>
+          ) : null}
           <ul className="planning-list">
             {exercises.data?.data.map((exercise) => (
               <li key={exercise.id}>
                 {editingExercise?.id === exercise.id ? (
                   <form className="exercise-edit-form planning-form" onSubmit={submitRename}>
                     <label>
-                      New exercise name
+                      {t("planning", "newExerciseName")}
                       <input
                         autoFocus
                         maxLength={120}
@@ -129,19 +147,22 @@ export function ExerciseCatalogPage() {
                     </label>
                     <div className="row-actions">
                       <button disabled={!editName.trim() || update.isPending} type="submit">
-                        Save name
+                        {t("planning", "saveName")}
                       </button>
                       <button
                         disabled={update.isPending}
-                        onClick={() => setEditingExercise(null)}
+                        onClick={() => {
+                          update.reset();
+                          setEditingExercise(null);
+                        }}
                         type="button"
                       >
-                        Cancel
+                        {t("planning", "cancel")}
                       </button>
                     </div>
                     {update.isError ? (
                       <p className="form-error" role="alert">
-                        {update.error.message}
+                        {t("planning", "updateExerciseError")}
                       </p>
                     ) : null}
                   </form>
@@ -150,20 +171,32 @@ export function ExerciseCatalogPage() {
                     <div>
                       <strong>{exercise.name}</strong>
                       <small>
-                        {exercise.muscleGroups.join(", ")} · {exercise.equipment}
+                        {exercise.muscleGroups
+                          .map((value) => MUSCLE_LABELS[value])
+                          .map((key) => t("planning", key))
+                          .join(", ")}{" "}
+                        · {t("planning", EQUIPMENT_LABELS[exercise.equipment])}
                       </small>
                     </div>
                     {!exercise.isSystem ? (
                       <div className="row-actions">
-                        <button onClick={() => beginRename(exercise)} type="button">
-                          Rename {exercise.name}
+                        <button
+                          aria-label={`${t("planning", "rename")} ${exercise.name}`}
+                          onClick={() => beginRename(exercise)}
+                          type="button"
+                        >
+                          {t("planning", "rename")}
                         </button>
-                        <button onClick={() => remove.mutate(exercise.id)} type="button">
-                          Delete {exercise.name}
+                        <button
+                          aria-label={`${t("planning", "delete")} ${exercise.name}`}
+                          onClick={() => remove.mutate(exercise.id)}
+                          type="button"
+                        >
+                          {t("planning", "delete")}
                         </button>
                       </div>
                     ) : (
-                      <span className="status-chip">System</span>
+                      <span className="status-chip">{t("planning", "systemExercise")}</span>
                     )}
                   </>
                 )}
@@ -172,9 +205,9 @@ export function ExerciseCatalogPage() {
           </ul>
         </div>
         <form className="planning-panel planning-form" onSubmit={submit}>
-          <h2>Create custom exercise</h2>
+          <h2>{t("planning", "createCustomExercise")}</h2>
           <label>
-            Exercise name
+            {t("planning", "exerciseName")}
             <input
               onChange={(event) => setFormName(event.target.value)}
               required
@@ -182,54 +215,60 @@ export function ExerciseCatalogPage() {
             />
           </label>
           <label>
-            Primary muscle group
+            {t("planning", "primaryMuscleGroup")}
             <select
               onChange={(event) => setFormMuscle(event.target.value as MuscleGroup)}
               value={formMuscle}
             >
-              {["CHEST", "BACK", "LEGS", "CORE", "SHOULDERS", "BICEPS", "TRICEPS"].map((value) => (
-                <option key={value}>{value}</option>
+              {MUSCLE_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {t("planning", label)}
+                </option>
               ))}
             </select>
           </label>
           <label>
-            Movement pattern
+            {t("planning", "movementPattern")}
             <select
               onChange={(event) => setMovementPattern(event.target.value as MovementPattern)}
               value={movementPattern}
             >
-              {["PUSH", "PULL", "HINGE", "SQUAT", "CARRY", "ROTATION", "ISOLATION"].map((value) => (
-                <option key={value}>{value}</option>
+              {MOVEMENT_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {t("planning", label)}
+                </option>
               ))}
             </select>
           </label>
           <label>
-            Equipment
+            {t("planning", "equipment")}
             <select
               onChange={(event) => setEquipment(event.target.value as Equipment)}
               value={equipment}
             >
-              {["BODYWEIGHT", "BARBELL", "DUMBBELL", "CABLE", "MACHINE", "RESISTANCE_BAND"].map(
-                (value) => (
-                  <option key={value}>{value}</option>
-                ),
-              )}
+              {EQUIPMENT_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {t("planning", label)}
+                </option>
+              ))}
             </select>
           </label>
           <label>
-            Difficulty
+            {t("planning", "difficulty")}
             <select
               onChange={(event) => setDifficulty(event.target.value as Difficulty)}
               value={difficulty}
             >
-              {["BEGINNER", "INTERMEDIATE", "ADVANCED"].map((value) => (
-                <option key={value}>{value}</option>
+              {DIFFICULTY_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {t("planning", label)}
+                </option>
               ))}
             </select>
           </label>
-          {create.isError ? <p role="alert">Could not create exercise.</p> : null}
+          {create.isError ? <p role="alert">{t("planning", "createExerciseError")}</p> : null}
           <button className="button button-primary" disabled={create.isPending} type="submit">
-            Create exercise
+            {t("planning", "createExercise")}
           </button>
         </form>
       </section>

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, type FormEvent } from "react";
 
+import { useI18n } from "../../i18n/i18n-context.js";
 import {
   acceptSuggestion,
   createPlan,
@@ -21,6 +22,7 @@ function addDays(date: string, days: number): string {
 }
 
 export function TrainingPlannerPage() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [name, setName] = useState("");
@@ -107,24 +109,24 @@ export function TrainingPlannerPage() {
   return (
     <main className="planning-page">
       <header className="planning-heading">
-        <p className="eyebrow">Training calendar</p>
-        <h1>Shape the week with intent</h1>
+        <p className="eyebrow">{t("planning", "plannerEyebrow")}</p>
+        <h1>{t("planning", "plannerTitle")}</h1>
       </header>
       <section className="planning-grid">
         <form className="planning-panel planning-form" onSubmit={submit}>
-          <h2>Create active plan</h2>
+          <h2>{t("planning", "createActivePlan")}</h2>
           <label>
-            Plan name
+            {t("planning", "planName")}
             <input onChange={(event) => setName(event.target.value)} required value={name} />
           </label>
           <label>
-            Monday template
+            {t("planning", "mondayTemplate")}
             <select
               onChange={(event) => setTemplateId(event.target.value)}
               required
               value={templateId}
             >
-              <option value="">Choose a template</option>
+              <option value="">{t("planning", "chooseTemplate")}</option>
               {templates.data?.data.map((template) => (
                 <option key={template.id} value={template.id}>
                   {template.name}
@@ -133,7 +135,7 @@ export function TrainingPlannerPage() {
             </select>
           </label>
           <button className="button button-primary" type="submit">
-            Create plan
+            {t("planning", "createPlan")}
           </button>
         </form>
         <CalendarPanel
