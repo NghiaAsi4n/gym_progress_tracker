@@ -138,6 +138,14 @@ export function WorkoutDetailPage() {
                 : `${Math.round(data.volumeKg * weightFactor)} ${unit.toLowerCase()}`}
             </dd>
           </div>
+          <div>
+            <dt>Calories</dt>
+            <dd>
+              {data.calorieEstimate
+                ? `≈ ${data.calorieEstimate.estimatedCalories} kcal`
+                : "Not estimated"}
+            </dd>
+          </div>
         </dl>
       </header>
       <div className="workout-exercise-list">

@@ -85,6 +85,31 @@ export {
   type SuggestionReasonCode,
 } from "./suggestion.js";
 export {
+  bodyWeightListQuerySchema,
+  bodyWeightListResponseSchema,
+  bodyWeightResponseSchema,
+  bodyWeightSchema,
+  createBodyWeightRequestSchema,
+  updateBodyWeightRequestSchema,
+  type BodyWeight,
+  type BodyWeightListQuery,
+  type CreateBodyWeightRequest,
+  type UpdateBodyWeightRequest,
+} from "./body-weight.js";
+export {
+  calorieEstimateResponseSchema,
+  calorieEstimateSchema,
+  type CalorieEstimate,
+} from "./calorie.js";
+export {
+  exerciseProgressPointSchema,
+  exerciseProgressResponseSchema,
+  exerciseProgressSchema,
+  progressRangeQuerySchema,
+  type ExerciseProgress,
+  type ProgressRangeQuery,
+} from "./progress.js";
+export {
   createWorkoutDraftRequestSchema,
   updateWorkoutDraftRequestSchema,
   workoutExerciseSchema,

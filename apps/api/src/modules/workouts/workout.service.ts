@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 
 import { ApiError } from "../../shared/api-error.js";
 import { ExerciseModel, type ExerciseRecord } from "../exercises/exercise.model.js";
+import { calculateCalorieEstimate } from "../progress/calorie-estimate.service.js";
 import type { createTrainingPlanService } from "../training-plans/training-plan.module.js";
 import type { WorkoutTemplateService } from "../workout-templates/workout-template.module.js";
 import {
@@ -65,6 +66,7 @@ function present(record: WorkoutRecord): Workout {
     cancelledAt: record.cancelledAt?.toISOString() ?? null,
     durationSeconds: record.durationSeconds ?? null,
     volumeKg: record.volumeKg ?? null,
+    calorieEstimate: record.calorieEstimate ?? null,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
   };
@@ -222,16 +224,22 @@ export function createWorkoutService(
       throw new ApiError("VALIDATION_ERROR", "Complete at least one set before finishing");
     }
     const now = new Date();
+    const durationSeconds = Math.max(
+      0,
+      Math.round((now.getTime() - current.startedAt.getTime()) / 1_000),
+    );
+    const calorieEstimate =
+      status === "COMPLETED"
+        ? await calculateCalorieEstimate(userId, current.startedAt, durationSeconds)
+        : null;
     const record = await WorkoutModel.findOneAndUpdate(
       { _id: id, ownerId: userId, status: "ACTIVE", version },
       {
         $set: {
           status,
-          durationSeconds: Math.max(
-            0,
-            Math.round((now.getTime() - current.startedAt.getTime()) / 1_000),
-          ),
+          durationSeconds,
           volumeKg: calculateVolume(current.exercises),
+          calorieEstimate,
           ...(status === "COMPLETED" ? { completedAt: now } : { cancelledAt: now }),
         },
         $inc: { version: 1 },

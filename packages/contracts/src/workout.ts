@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { createPaginatedResponseSchema, paginationQuerySchema } from "./api.js";
+import { calorieEstimateSchema } from "./calorie.js";
 import { objectIdSchema } from "./workout-template.js";
 
 export const workoutStatusSchema = z.enum(["ACTIVE", "COMPLETED", "CANCELLED"]);
@@ -99,6 +100,7 @@ export const workoutSchema = z
     cancelledAt: z.string().datetime().nullable(),
     durationSeconds: z.number().int().min(0).nullable(),
     volumeKg: z.number().min(0).nullable(),
+    calorieEstimate: calorieEstimateSchema.nullable(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
   })

@@ -825,6 +825,181 @@ h2 {
   padding-block: var(--space-2);
 }
 
+.progress-page {
+  width: min(calc(100% - var(--space-8)), var(--content-width));
+  margin-inline: auto;
+  padding-block: var(--space-8);
+}
+
+.progress-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: var(--border-accent) solid var(--color-text);
+  margin-bottom: var(--space-5);
+  padding-block: var(--space-5);
+}
+
+.progress-header h1 {
+  max-width: 14ch;
+  font-size: clamp(2rem, 7vw, 4rem);
+}
+
+.progress-header label {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.progress-header select {
+  min-height: 2.75rem;
+  border: var(--border-thin) solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  padding-inline: var(--space-3);
+}
+
+.progress-summary-grid,
+.progress-chart-grid,
+.body-weight-layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.progress-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.progress-summary-grid article {
+  display: grid;
+  min-width: 0;
+  border-top: var(--border-accent) solid var(--color-accent);
+  background: var(--color-surface);
+  padding: var(--space-4);
+}
+
+.progress-summary-grid span,
+.progress-metrics dt {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.progress-summary-grid strong {
+  overflow-wrap: anywhere;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+}
+
+.progress-actions {
+  display: flex;
+  justify-content: end;
+  margin-block: var(--space-4);
+}
+
+.progress-chart-card,
+.calorie-panel {
+  border: var(--border-thin) solid var(--color-border);
+  background: var(--color-surface);
+  padding: var(--space-5);
+}
+
+.progress-chart-card > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.progress-chart-card h2,
+.calorie-panel h2 {
+  margin-bottom: 0;
+}
+
+.progress-bars {
+  display: flex;
+  align-items: end;
+  gap: var(--space-1);
+  height: 10rem;
+  overflow-x: auto;
+  border-bottom: var(--border-thin) solid var(--color-border-strong);
+  margin-block: var(--space-5);
+}
+
+.progress-bar-item {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  align-items: end;
+  min-width: 2.25rem;
+  height: 100%;
+  text-align: center;
+}
+
+.progress-bar {
+  display: block;
+  width: 100%;
+  background: var(--color-accent);
+}
+
+.progress-bar-item small {
+  color: var(--color-text-muted);
+  font-size: 0.625rem;
+}
+
+.progress-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.progress-metrics div {
+  display: grid;
+}
+
+.progress-metrics dd {
+  margin: 0;
+  font-weight: 800;
+}
+
+.calorie-panel {
+  margin-top: var(--space-5);
+}
+
+.calorie-list,
+.body-weight-list {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+
+.calorie-list li,
+.body-weight-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border-bottom: var(--border-thin) solid var(--color-border);
+  padding-block: var(--space-3);
+}
+
+.calorie-list li > div,
+.body-weight-list li > div:first-child {
+  display: grid;
+}
+
+.calorie-list button,
+.body-weight-list button {
+  min-height: 2.5rem;
+  border: var(--border-thin) solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+  padding-inline: var(--space-3);
+}
+
 @media (min-width: 48rem) {
   .site-header {
     min-height: 4.5rem;
@@ -865,6 +1040,15 @@ h2 {
   .history-list li > a {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
+  }
+
+  .progress-summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .progress-chart-grid,
+  .body-weight-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

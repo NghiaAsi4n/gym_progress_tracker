@@ -12,6 +12,11 @@ import { createTokenService, type AuthTokenConfig } from "./modules/auth/token.s
 import { createExerciseRepository } from "./modules/exercises/exercise.repository.js";
 import { createExerciseRouter } from "./modules/exercises/exercise.routes.js";
 import { createExerciseService } from "./modules/exercises/exercise.service.js";
+import {
+  createBodyWeightRouter,
+  createBodyWeightService,
+} from "./modules/body-weight/body-weight.module.js";
+import { createProgressRouter, createProgressService } from "./modules/progress/progress.module.js";
 import { createUserRouter } from "./modules/users/user.routes.js";
 import { createUserRepository } from "./modules/users/user.repository.js";
 import { createUserService } from "./modules/users/user.service.js";
@@ -57,6 +62,8 @@ export function createApp(options: AppOptions) {
   const workoutTemplateService = createWorkoutTemplateService();
   const trainingPlanService = createTrainingPlanService(workoutTemplateService);
   const workoutService = createWorkoutService(workoutTemplateService, trainingPlanService);
+  const bodyWeightService = createBodyWeightService();
+  const progressService = createProgressService();
   const exerciseRepository = createExerciseRepository();
   const exerciseService = createExerciseService(exerciseRepository, (userId, exerciseId) =>
     workoutTemplateService.isExerciseReferenced(userId, exerciseId),
@@ -79,6 +86,8 @@ export function createApp(options: AppOptions) {
   );
   app.use("/api/v1/training-plans", createTrainingPlanRouter(authenticate, trainingPlanService));
   app.use("/api/v1/workouts", createWorkoutRouter(authenticate, workoutService));
+  app.use("/api/v1/body-weights", createBodyWeightRouter(authenticate, bodyWeightService));
+  app.use("/api/v1/progress", createProgressRouter(authenticate, progressService));
   const scheduleRouters = createScheduleRouter(authenticate, trainingPlanService);
   app.use("/api/v1/scheduled-workouts", scheduleRouters.scheduled);
   app.use("/api/v1/schedule-overrides", scheduleRouters.overrides);

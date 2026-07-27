@@ -5,6 +5,8 @@ import { ProtectedRoute } from "../features/auth/ProtectedRoute.js";
 import { ExerciseCatalogPage } from "../features/planning/ExerciseCatalogPage.js";
 import { TrainingPlannerPage } from "../features/planning/TrainingPlannerPage.js";
 import { WorkoutTemplatesPage } from "../features/planning/WorkoutTemplatesPage.js";
+import { BodyWeightPage } from "../features/progress/BodyWeightPage.js";
+import { ProgressDashboardPage } from "../features/progress/ProgressDashboardPage.js";
 import { ActiveWorkoutPage } from "../features/workouts/ActiveWorkoutPage.js";
 import {
   WorkoutDetailPage,
@@ -74,6 +76,22 @@ export const appRoutes: RouteObject[] = [
         element: (
           <ProtectedRoute>
             <WorkoutDetailPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "progress",
+        element: (
+          <ProtectedRoute>
+            <ProgressDashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "progress/body-weight",
+        element: (
+          <ProtectedRoute>
+            <BodyWeightPage />
           </ProtectedRoute>
         ),
       },

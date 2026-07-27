@@ -354,23 +354,23 @@ Implemented exercise catalog hardening and responsive UI, workout-template CRUD/
 
 ### Task 18: Tính exercise progress
 
-- [ ] Tính best weight, volume, estimated 1RM, weekly sets và PR history.
-- [ ] Cung cấp time series theo khoảng thời gian và unit preference.
+- [x] Tính best weight, volume, estimated 1RM, weekly sets và PR history.
+- [x] Cung cấp time series theo khoảng thời gian và unit preference.
 
 ### Task 19: Xây body-weight CRUD
 
-- [ ] Xây API và UI thêm, sửa, xóa cân nặng theo ngày.
-- [ ] Lưu canonical kg, hiển thị kg/lb và enforce ownership.
+- [x] Xây API và UI thêm, sửa, xóa cân nặng theo ngày.
+- [x] Lưu canonical kg, hiển thị kg/lb và enforce ownership.
 
 ### Task 20: Tính calorie tiêu hao ước tính
 
-- [ ] Ước tính calorie từ MET, duration và body-weight gần nhất.
-- [ ] Lưu input snapshot/method và hiển thị rõ đây là số liệu ước tính.
+- [x] Ước tính calorie từ MET, duration và body-weight gần nhất.
+- [x] Lưu input snapshot/method và hiển thị rõ đây là số liệu ước tính.
 
 ### Task 21: Xây progress charts và dashboard
 
-- [ ] Hiển thị exercise trend, body-weight trend, calorie và summary cards.
-- [ ] Hỗ trợ lọc khoảng thời gian cùng loading, empty và error states.
+- [x] Hiển thị exercise trend, body-weight trend, calorie và summary cards.
+- [x] Hỗ trợ lọc khoảng thời gian cùng loading, empty và error states.
 
 ## Phase 7: Hardening
 

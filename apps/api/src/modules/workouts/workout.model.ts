@@ -1,4 +1,5 @@
 import mongoose, { model, Schema, type Model } from "mongoose";
+import type { CalorieEstimate } from "@gym-tracking/contracts";
 
 export interface WorkoutSetRecord {
   id: mongoose.Types.ObjectId;
@@ -39,6 +40,7 @@ export interface WorkoutRecord {
   cancelledAt?: Date | null;
   durationSeconds?: number | null;
   volumeKg?: number | null;
+  calorieEstimate?: CalorieEstimate | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -96,6 +98,7 @@ const workoutSchema = new Schema<WorkoutRecord>(
     cancelledAt: { type: Date, default: null },
     durationSeconds: { type: Number, default: null, min: 0 },
     volumeKg: { type: Number, default: null, min: 0 },
+    calorieEstimate: { type: Schema.Types.Mixed, default: null },
   },
   { collection: "workouts", timestamps: true, versionKey: false },
 );
