@@ -82,8 +82,8 @@ input {
 
 .header-primary {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
   gap: var(--space-4);
 }
 
@@ -124,6 +124,7 @@ input {
 .site-header nav {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-4);
 }
 
@@ -413,6 +414,135 @@ h2 {
   padding-block: var(--space-5);
 }
 
+.planning-page {
+  width: min(calc(100% - var(--space-8)), var(--content-width));
+  margin-inline: auto;
+  padding-block: var(--space-8);
+}
+
+.planning-heading {
+  padding-block: var(--space-6);
+  border-bottom: var(--border-accent) solid var(--color-text);
+  margin-bottom: var(--space-6);
+}
+
+.planning-heading h1 {
+  max-width: 18ch;
+  margin-bottom: 0;
+  font-size: clamp(2rem, 7vw, 4.5rem);
+}
+
+.planning-grid {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.planning-panel,
+.planning-toolbar {
+  border: var(--border-thin) solid var(--color-border);
+  background: var(--color-surface);
+  padding: var(--space-5);
+}
+
+.planning-toolbar {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.planning-form,
+.planning-form label,
+.planning-toolbar label {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.planning-form {
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.planning-form :where(input, select),
+.planning-toolbar :where(input, select) {
+  width: 100%;
+  min-height: 2.75rem;
+  border: var(--border-thin) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas-subtle);
+  color: var(--color-text);
+  font: inherit;
+  padding-inline: var(--space-3);
+}
+
+.planning-list {
+  display: grid;
+  padding: 0;
+  margin: var(--space-4) 0 0;
+  gap: var(--space-3);
+  list-style: none;
+}
+
+.planning-list li {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3);
+  border-left: var(--border-accent) solid var(--color-accent);
+  background: var(--color-canvas-subtle);
+  gap: var(--space-3);
+}
+
+.planning-list li > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.planning-list small,
+.helper-text {
+  color: var(--color-text-muted);
+}
+
+.row-actions,
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.panel-title-row {
+  justify-content: space-between;
+}
+
+.planning-panel button:not(.button),
+.row-actions button {
+  min-height: 2.5rem;
+  border: var(--border-thin) solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+  padding-inline: var(--space-3);
+}
+
+.planning-panel button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.status-chip {
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-thin) solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.suggestions-panel {
+  margin-top: var(--space-6);
+}
+
 @media (min-width: 48rem) {
   .site-header {
     min-height: 4.5rem;
@@ -423,6 +553,9 @@ h2 {
   }
 
   .header-primary {
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
     flex: 1;
   }
 
@@ -432,6 +565,11 @@ h2 {
 
   .status-panel {
     align-content: space-between;
+  }
+
+  .planning-grid,
+  .planning-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
