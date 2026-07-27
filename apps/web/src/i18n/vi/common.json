@@ -14,6 +14,7 @@
   "themeDark": "Tối",
   "themeSystem": "Hệ thống",
   "languageLabel": "Ngôn ngữ",
+  "unitLabel": "Đơn vị",
   "heroEyebrow": "NỀN TẢNG LUYỆN TẬP CÁ NHÂN",
   "heroTitle": "Gym Progress Tracker",
   "heroDescription": "Nền tảng đã sẵn sàng cho các tính năng lịch tập, ghi set và theo dõi tiến bộ.",
@@ -29,6 +30,10 @@
   "errorTitle": "Đã có lỗi xảy ra",
   "errorDescription": "Ứng dụng không thể hiển thị nội dung này. Bạn có thể thử tải lại phần giao diện.",
   "errorRetry": "Thử lại",
-  "footer": "Gym Progress Tracker · Sẵn sàng luyện tập",
+  "footerTagline": "Lập kế hoạch có chủ đích. Tập luyện bằng dữ liệu.",
+  "footerNavigationLabel": "Điều hướng cuối trang",
+  "footerAccountNote": "Dữ liệu tập luyện được sắp xếp theo mục tiêu của bạn.",
+  "copyrightLabel": "Bảo lưu mọi quyền.",
+  "restoringSession": "Đang khôi phục phiên đăng nhập…",
   "missingTranslation": "Nội dung chưa có"
 }

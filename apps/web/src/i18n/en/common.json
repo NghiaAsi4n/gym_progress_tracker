@@ -14,6 +14,7 @@
   "themeDark": "Dark",
   "themeSystem": "System",
   "languageLabel": "Language",
+  "unitLabel": "Unit",
   "heroEyebrow": "PERSONAL TRAINING FOUNDATION",
   "heroTitle": "Gym Progress Tracker",
   "heroDescription": "The foundation is ready for workout planning, set logging, and progress tracking.",
@@ -29,6 +30,10 @@
   "errorTitle": "Something went wrong",
   "errorDescription": "The application cannot display this content. Try loading this part of the interface again.",
   "errorRetry": "Try again",
-  "footer": "Gym Progress Tracker · Ready to train",
+  "footerTagline": "Plan with intent. Train with evidence.",
+  "footerNavigationLabel": "Footer navigation",
+  "footerAccountNote": "Your training data, organized around your goals.",
+  "copyrightLabel": "All rights reserved.",
+  "restoringSession": "Restoring your session…",
   "missingTranslation": "Content unavailable"
 }

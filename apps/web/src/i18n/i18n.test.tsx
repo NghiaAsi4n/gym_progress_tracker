@@ -64,4 +64,11 @@ describe("localization", () => {
     expect(translate("en", "common", missingKey)).toBe("Nội dung chưa có");
     expect(translate("en", "common", missingKey)).not.toContain(missingKey);
   });
+
+  it("provides localized copy for every feature namespace", () => {
+    expect(translate("vi", "planning", "createExercise")).toBe("Tạo bài tập");
+    expect(translate("vi", "workouts", "startEmptyWorkout")).toBe("Bắt đầu buổi tập trống");
+    expect(translate("vi", "progress", "saveMeasurement")).toBe("Lưu số đo");
+    expect(translate("en", "progress", "saveMeasurement")).toBe("Save measurement");
+  });
 });

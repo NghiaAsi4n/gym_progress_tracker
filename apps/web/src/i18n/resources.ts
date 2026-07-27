@@ -1,11 +1,20 @@
 import enAuth from "./en/auth.json";
 import enCommon from "./en/common.json";
+import enPlanning from "./en/planning.json";
+import enProgress from "./en/progress.json";
+import enWorkouts from "./en/workouts.json";
 import viAuth from "./vi/auth.json";
 import viCommon from "./vi/common.json";
+import viPlanning from "./vi/planning.json";
+import viProgress from "./vi/progress.json";
+import viWorkouts from "./vi/workouts.json";
 
 const viResources = {
   auth: viAuth,
   common: viCommon,
+  planning: viPlanning,
+  progress: viProgress,
+  workouts: viWorkouts,
 };
 
 type ResourceSchema = {
@@ -15,6 +24,9 @@ type ResourceSchema = {
 const enResources = {
   auth: enAuth,
   common: enCommon,
+  planning: enPlanning,
+  progress: enProgress,
+  workouts: enWorkouts,
 } satisfies ResourceSchema;
 
 export const resources = {
