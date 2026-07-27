@@ -16,6 +16,22 @@ const envSchema = z.object({
     .url()
     .regex(/^https?:\/\//, "must use the http or https protocol")
     .default("http://localhost:5173"),
+  ACCESS_TOKEN_SECRET: z.string().min(32),
+  REFRESH_TOKEN_SECRET: z.string().min(32),
+  ACCESS_TOKEN_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(60)
+    .max(3_600)
+    .default(15 * 60),
+  REFRESH_TOKEN_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .min(5 * 60)
+    .max(30 * 24 * 60 * 60)
+    .default(7 * 24 * 60 * 60),
+  TOKEN_AUDIENCE: z.string().min(1).default("gym-tracking-web"),
+  TOKEN_ISSUER: z.string().min(1).default("gym-tracking-api"),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

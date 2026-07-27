@@ -13,8 +13,10 @@
   },
   "dependencies": {
     "@gym-tracking/contracts": "*",
+    "cookie": "^2.0.1",
     "cors": "2.8.5",
     "express": "5.2.1",
+    "jose": "^6.2.4",
     "mongoose": "9.8.0",
     "zod": "4.4.3"
   },
