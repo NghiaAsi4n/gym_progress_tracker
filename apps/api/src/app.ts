@@ -9,9 +9,23 @@ import { createAuthService } from "./modules/auth/auth.service.js";
 import { createPasswordService } from "./modules/auth/password.service.js";
 import { createRefreshService } from "./modules/auth/refresh.service.js";
 import { createTokenService, type AuthTokenConfig } from "./modules/auth/token.service.js";
+import { createExerciseRepository } from "./modules/exercises/exercise.repository.js";
+import { createExerciseRouter } from "./modules/exercises/exercise.routes.js";
+import { createExerciseService } from "./modules/exercises/exercise.service.js";
 import { createUserRouter } from "./modules/users/user.routes.js";
 import { createUserRepository } from "./modules/users/user.repository.js";
 import { createUserService } from "./modules/users/user.service.js";
+import {
+  createWorkoutTemplateRouter,
+  createWorkoutTemplateService,
+} from "./modules/workout-templates/workout-template.module.js";
+import { createWorkoutRouter } from "./modules/workouts/workout.routes.js";
+import { createWorkoutService } from "./modules/workouts/workout.service.js";
+import {
+  createScheduleRouter,
+  createTrainingPlanRouter,
+  createTrainingPlanService,
+} from "./modules/training-plans/training-plan.module.js";
 import { ApiError } from "./shared/api-error.js";
 
 interface AppOptions {
@@ -40,6 +54,13 @@ export function createApp(options: AppOptions) {
   });
   const authenticate = createAuthenticateMiddleware(tokenService);
   const userService = createUserService(userRepository);
+  const workoutTemplateService = createWorkoutTemplateService();
+  const trainingPlanService = createTrainingPlanService(workoutTemplateService);
+  const workoutService = createWorkoutService(workoutTemplateService, trainingPlanService);
+  const exerciseRepository = createExerciseRepository();
+  const exerciseService = createExerciseService(exerciseRepository, (userId, exerciseId) =>
+    workoutTemplateService.isExerciseReferenced(userId, exerciseId),
+  );
 
   app.disable("x-powered-by");
   app.use(
@@ -51,6 +72,16 @@ export function createApp(options: AppOptions) {
   app.use(express.json({ limit: "100kb" }));
   app.use("/api/v1/auth", createAuthRouter(authService, refreshService, options.webOrigin));
   app.use("/api/v1/me", createUserRouter(authenticate, userService));
+  app.use("/api/v1/exercises", createExerciseRouter(authenticate, exerciseService));
+  app.use(
+    "/api/v1/workout-templates",
+    createWorkoutTemplateRouter(authenticate, workoutTemplateService),
+  );
+  app.use("/api/v1/training-plans", createTrainingPlanRouter(authenticate, trainingPlanService));
+  app.use("/api/v1/workouts", createWorkoutRouter(authenticate, workoutService));
+  const scheduleRouters = createScheduleRouter(authenticate, trainingPlanService);
+  app.use("/api/v1/scheduled-workouts", scheduleRouters.scheduled);
+  app.use("/api/v1/schedule-overrides", scheduleRouters.overrides);
 
   app.get("/api/v1/health", (_request, response) => {
     const database = options.databaseStatus();

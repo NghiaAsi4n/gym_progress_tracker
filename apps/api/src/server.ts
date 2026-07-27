@@ -1,12 +1,15 @@
 import { createApp } from "./app.js";
 import { connectDatabase, disconnectDatabase, getDatabaseStatus } from "./config/database.js";
 import { loadRootEnvFile, parseEnv } from "./config/env.js";
+import { createExerciseRepository } from "./modules/exercises/exercise.repository.js";
+import { systemExercises } from "./modules/exercises/exercise.seed.js";
 import { createShutdownHandler } from "./shared/graceful-shutdown.js";
 
 export async function startServer() {
   loadRootEnvFile();
   const env = parseEnv();
   await connectDatabase(env.MONGODB_URI);
+  await createExerciseRepository().seedSystemExercises(systemExercises);
 
   const app = createApp({
     auth: {
