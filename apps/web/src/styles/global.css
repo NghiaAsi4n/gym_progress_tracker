@@ -613,6 +613,10 @@ h2 {
   color: var(--color-text-muted);
 }
 
+.exercise-edit-form {
+  width: 100%;
+}
+
 .row-actions,
 .panel-title-row {
   display: flex;
@@ -1136,6 +1140,11 @@ h2 {
   .planning-grid,
   .planning-toolbar {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exercise-edit-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
   }
 
   .workout-start-grid {

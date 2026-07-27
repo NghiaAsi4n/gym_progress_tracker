@@ -5,6 +5,7 @@ import type {
   CreateExerciseRequest,
   Difficulty,
   Equipment,
+  Exercise,
   MovementPattern,
   MuscleGroup,
 } from "@gym-tracking/contracts";
@@ -25,6 +26,8 @@ export function ExerciseCatalogPage() {
   const [movementPattern, setMovementPattern] = useState<MovementPattern>("ISOLATION");
   const [equipment, setEquipment] = useState<Equipment>("BODYWEIGHT");
   const [difficulty, setDifficulty] = useState<Difficulty>("BEGINNER");
+  const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [editName, setEditName] = useState("");
   const exercises = useQuery({
     queryKey: ["exercises", name, muscleGroup],
     queryFn: () =>
@@ -40,7 +43,11 @@ export function ExerciseCatalogPage() {
   const update = useMutation({
     mutationFn: ({ id, nextName }: { id: string; nextName: string }) =>
       updateExercise(id, { name: nextName }),
-    onSuccess: refresh,
+    onSuccess: () => {
+      setEditingExercise(null);
+      setEditName("");
+      return refresh();
+    },
   });
   const remove = useMutation({ mutationFn: deleteExercise, onSuccess: refresh });
 
@@ -54,6 +61,18 @@ export function ExerciseCatalogPage() {
       difficulty,
     };
     create.mutate(input, { onSuccess: () => setFormName("") });
+  }
+
+  function beginRename(exercise: Exercise) {
+    setEditingExercise(exercise);
+    setEditName(exercise.name);
+  }
+
+  function submitRename(event: FormEvent) {
+    event.preventDefault();
+    const nextName = editName.trim();
+    if (!editingExercise || !nextName) return;
+    update.mutate({ id: editingExercise.id, nextName });
   }
 
   return (
@@ -96,28 +115,57 @@ export function ExerciseCatalogPage() {
           <ul className="planning-list">
             {exercises.data?.data.map((exercise) => (
               <li key={exercise.id}>
-                <div>
-                  <strong>{exercise.name}</strong>
-                  <small>
-                    {exercise.muscleGroups.join(", ")} · {exercise.equipment}
-                  </small>
-                </div>
-                {!exercise.isSystem ? (
-                  <div className="row-actions">
-                    <button
-                      onClick={() =>
-                        update.mutate({ id: exercise.id, nextName: `${exercise.name} updated` })
-                      }
-                      type="button"
-                    >
-                      Rename {exercise.name}
-                    </button>
-                    <button onClick={() => remove.mutate(exercise.id)} type="button">
-                      Delete {exercise.name}
-                    </button>
-                  </div>
+                {editingExercise?.id === exercise.id ? (
+                  <form className="exercise-edit-form planning-form" onSubmit={submitRename}>
+                    <label>
+                      New exercise name
+                      <input
+                        autoFocus
+                        maxLength={120}
+                        onChange={(event) => setEditName(event.target.value)}
+                        required
+                        value={editName}
+                      />
+                    </label>
+                    <div className="row-actions">
+                      <button disabled={!editName.trim() || update.isPending} type="submit">
+                        Save name
+                      </button>
+                      <button
+                        disabled={update.isPending}
+                        onClick={() => setEditingExercise(null)}
+                        type="button"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    {update.isError ? (
+                      <p className="form-error" role="alert">
+                        {update.error.message}
+                      </p>
+                    ) : null}
+                  </form>
                 ) : (
-                  <span className="status-chip">System</span>
+                  <>
+                    <div>
+                      <strong>{exercise.name}</strong>
+                      <small>
+                        {exercise.muscleGroups.join(", ")} · {exercise.equipment}
+                      </small>
+                    </div>
+                    {!exercise.isSystem ? (
+                      <div className="row-actions">
+                        <button onClick={() => beginRename(exercise)} type="button">
+                          Rename {exercise.name}
+                        </button>
+                        <button onClick={() => remove.mutate(exercise.id)} type="button">
+                          Delete {exercise.name}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="status-chip">System</span>
+                    )}
+                  </>
                 )}
               </li>
             ))}

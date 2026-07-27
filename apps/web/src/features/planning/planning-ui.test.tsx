@@ -61,6 +61,36 @@ describe("Phase 4 planning UI", () => {
     );
   });
 
+  it("lets the user enter a new name for a custom exercise", async () => {
+    const customExercise = {
+      ...exercise,
+      id: "507f1f77bcf86cd799439012",
+      isSystem: false,
+      name: "Custom squat",
+      ownerId: "507f1f77bcf86cd799439014",
+    };
+    vi.mocked(api.listExercises).mockResolvedValue({
+      data: [customExercise],
+      pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 },
+    });
+    vi.mocked(api.updateExercise).mockResolvedValue({
+      data: { ...customExercise, name: "Goblet squat" },
+    });
+    const user = userEvent.setup();
+    renderPage(<ExerciseCatalogPage />);
+
+    await user.click(await screen.findByRole("button", { name: "Rename Custom squat" }));
+    const nameInput = screen.getByRole("textbox", { name: "New exercise name" });
+    expect(nameInput).toHaveValue("Custom squat");
+    await user.clear(nameInput);
+    await user.type(nameInput, "Goblet squat");
+    await user.click(screen.getByRole("button", { name: "Save name" }));
+
+    expect(api.updateExercise).toHaveBeenCalledWith(customExercise.id, {
+      name: "Goblet squat",
+    });
+  });
+
   it("creates a template and sends exercise order from the editor", async () => {
     vi.mocked(api.listExercises).mockResolvedValue({
       data: [exercise],
