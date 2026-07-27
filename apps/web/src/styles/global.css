@@ -623,6 +623,66 @@ h2 {
   gap: var(--space-4);
 }
 
+.muscle-group-fieldset {
+  display: grid;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  gap: var(--space-2);
+}
+
+.muscle-group-fieldset legend {
+  padding: 0;
+  font-weight: 700;
+}
+
+.muscle-group-fieldset p {
+  margin: 0;
+}
+
+.muscle-group-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: var(--space-2);
+}
+
+.planning-form .muscle-group-option {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas-subtle);
+  cursor: pointer;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard);
+}
+
+.planning-form .muscle-group-option-selected {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+}
+
+.planning-form .muscle-group-option-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.planning-form .muscle-group-option input {
+  width: auto;
+  min-height: auto;
+  padding: 0;
+  accent-color: var(--color-accent);
+}
+
+.muscle-group-fieldset > small {
+  color: var(--color-text-muted);
+}
+
 .planning-form :where(input, select),
 .planning-toolbar :where(input, select) {
   width: 100%;

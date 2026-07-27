@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Exercise } from "@gym-tracking/contracts";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { I18nProvider } from "../../i18n/index.js";
 import type { Locale } from "../../i18n/resources.js";
@@ -12,6 +12,10 @@ import { TrainingPlannerPage } from "./TrainingPlannerPage.js";
 import { WorkoutTemplatesPage } from "./WorkoutTemplatesPage.js";
 
 vi.mock("../../services/planning-api.js");
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 const exercise: Exercise = {
   id: "507f1f77bcf86cd799439011",
@@ -39,7 +43,7 @@ function renderPage(page: React.ReactNode, locale: Locale = "en") {
 }
 
 describe("Phase 4 planning UI", () => {
-  it("searches, filters and creates an exercise", async () => {
+  it("searches, filters and creates an exercise with multiple muscle groups", async () => {
     vi.mocked(api.listExercises).mockResolvedValue({
       data: [exercise],
       pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 },
@@ -58,11 +62,49 @@ describe("Phase 4 planning UI", () => {
     );
 
     await user.type(screen.getByLabelText("Exercise name"), "Core hold");
+    await user.click(screen.getByRole("checkbox", { name: "Chest" }));
+    await user.click(screen.getByRole("checkbox", { name: "Shoulders" }));
+    expect(screen.getByText("2/5 selected")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Create exercise" }));
     expect(api.createExercise).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "Core hold" }),
+      expect.objectContaining({
+        name: "Core hold",
+        muscleGroups: ["CHEST", "SHOULDERS"],
+      }),
       expect.anything(),
     );
+  });
+
+  it("requires at least one muscle group", async () => {
+    vi.mocked(api.listExercises).mockResolvedValue({
+      data: [exercise],
+      pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 },
+    });
+    const user = userEvent.setup();
+    renderPage(<ExerciseCatalogPage />);
+
+    await user.type(screen.getByLabelText("Exercise name"), "Core hold");
+    await user.click(screen.getByRole("button", { name: "Create exercise" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Select at least one muscle group.");
+    expect(api.createExercise).not.toHaveBeenCalled();
+  });
+
+  it("limits a custom exercise to five muscle groups", async () => {
+    vi.mocked(api.listExercises).mockResolvedValue({
+      data: [exercise],
+      pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 },
+    });
+    const user = userEvent.setup();
+    renderPage(<ExerciseCatalogPage />);
+
+    for (const label of ["Chest", "Back", "Legs", "Core", "Shoulders"]) {
+      await user.click(screen.getByRole("checkbox", { name: label }));
+    }
+
+    expect(screen.getByText("5/5 selected")).toBeVisible();
+    expect(screen.getByRole("checkbox", { name: "Biceps" })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: "Chest" })).toBeEnabled();
   });
 
   it("renders the exercise workflow in Vietnamese", async () => {
@@ -77,6 +119,8 @@ describe("Phase 4 planning UI", () => {
       await screen.findByRole("heading", { level: 1, name: "Xây dựng thư viện động tác" }),
     ).toBeVisible();
     expect(screen.getByRole("searchbox", { name: "Tìm bài tập" })).toBeVisible();
+    expect(screen.getByRole("group", { name: "Nhóm cơ tác động" })).toBeVisible();
+    expect(screen.getByRole("checkbox", { name: "Ngực" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Tạo bài tập" })).toBeVisible();
   });
 

@@ -24,6 +24,7 @@ import {
   MUSCLE_LABELS,
   optionEntries,
 } from "./planning-labels.js";
+import { MuscleGroupPicker } from "./MuscleGroupPicker.js";
 
 const MUSCLE_OPTIONS = optionEntries(MUSCLE_LABELS);
 const MOVEMENT_OPTIONS = optionEntries(MOVEMENT_LABELS);
@@ -36,7 +37,8 @@ export function ExerciseCatalogPage() {
   const [name, setName] = useState("");
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup | "">("");
   const [formName, setFormName] = useState("");
-  const [formMuscle, setFormMuscle] = useState<MuscleGroup>("CORE");
+  const [formMuscles, setFormMuscles] = useState<MuscleGroup[]>([]);
+  const [hasMuscleError, setHasMuscleError] = useState(false);
   const [movementPattern, setMovementPattern] = useState<MovementPattern>("ISOLATION");
   const [equipment, setEquipment] = useState<Equipment>("BODYWEIGHT");
   const [difficulty, setDifficulty] = useState<Difficulty>("BEGINNER");
@@ -67,14 +69,24 @@ export function ExerciseCatalogPage() {
 
   function submit(event: FormEvent) {
     event.preventDefault();
+    if (formMuscles.length === 0) {
+      setHasMuscleError(true);
+      return;
+    }
     const input: CreateExerciseRequest = {
       name: formName,
-      muscleGroups: [formMuscle],
+      muscleGroups: formMuscles,
       movementPattern,
       equipment,
       difficulty,
     };
-    create.mutate(input, { onSuccess: () => setFormName("") });
+    create.mutate(input, {
+      onSuccess: () => {
+        setFormName("");
+        setFormMuscles([]);
+        setHasMuscleError(false);
+      },
+    });
   }
 
   function beginRename(exercise: Exercise) {
@@ -214,19 +226,14 @@ export function ExerciseCatalogPage() {
               value={formName}
             />
           </label>
-          <label>
-            {t("planning", "primaryMuscleGroup")}
-            <select
-              onChange={(event) => setFormMuscle(event.target.value as MuscleGroup)}
-              value={formMuscle}
-            >
-              {MUSCLE_OPTIONS.map(([value, label]) => (
-                <option key={value} value={value}>
-                  {t("planning", label)}
-                </option>
-              ))}
-            </select>
-          </label>
+          <MuscleGroupPicker
+            hasError={hasMuscleError}
+            onChange={(groups) => {
+              setFormMuscles(groups);
+              setHasMuscleError(false);
+            }}
+            selected={formMuscles}
+          />
           <label>
             {t("planning", "movementPattern")}
             <select
