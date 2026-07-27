@@ -1,20 +1,32 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, Outlet } from "react-router-dom";
 
+import { Button } from "../components/ui/Button.js";
+import { Card } from "../components/ui/Card.js";
+import { ThemeSwitcher } from "../features/preferences/theme.js";
 import { getHealth } from "../services/api-client.js";
 
 export function AppShell() {
   return (
     <div className="app-shell">
       <header className="site-header">
-        <Link className="brand" to="/">
-          Gym Progress Tracker
-        </Link>
-        <nav aria-label="Điều hướng chính">
-          <Link aria-current="page" to="/">
-            Tổng quan
+        <div className="header-primary">
+          <Link className="brand" to="/">
+            <span aria-hidden="true" className="brand-mark">
+              Ω
+            </span>
+            <span>Gym Progress Tracker</span>
           </Link>
-        </nav>
+          <nav aria-label="Điều hướng chính">
+            <Link aria-current="page" to="/">
+              Tổng quan
+            </Link>
+          </nav>
+        </div>
+        <ThemeSwitcher
+          groupLabel="Giao diện"
+          labels={{ light: "Sáng", dark: "Tối", system: "Hệ thống" }}
+        />
       </header>
       <Outlet />
       <footer className="site-footer">
@@ -32,15 +44,15 @@ export function HomePage() {
 
   return (
     <main className="page">
-      <section aria-labelledby="page-title" className="intro-panel">
+      <Card aria-labelledby="page-title" className="intro-panel" emphasis>
         <p className="eyebrow">NỀN TẢNG LUYỆN TẬP CÁ NHÂN</p>
         <h1 id="page-title">Gym Progress Tracker</h1>
         <p className="lede">
           Workspace nền tảng đã sẵn sàng cho các tính năng lịch tập, ghi set và theo dõi tiến bộ.
         </p>
-      </section>
+      </Card>
 
-      <section aria-labelledby="system-status-title" className="status-panel">
+      <Card aria-labelledby="system-status-title" className="status-panel">
         <div>
           <p className="eyebrow">SYSTEM STATUS</p>
           <h2 id="system-status-title">Kết nối dịch vụ</h2>
@@ -51,20 +63,16 @@ export function HomePage() {
         ) : health.isError ? (
           <div role="alert">
             <p>Chưa thể kết nối API hoặc MongoDB.</p>
-            <button
-              className="button button-secondary"
-              type="button"
-              onClick={() => void health.refetch()}
-            >
+            <Button onClick={() => void health.refetch()} variant="secondary">
               Kiểm tra lại
-            </button>
+            </Button>
           </div>
         ) : (
           <p className="success-status" role="status">
             <span aria-hidden="true">●</span> API và MongoDB đã sẵn sàng.
           </p>
         )}
-      </section>
+      </Card>
     </main>
   );
 }

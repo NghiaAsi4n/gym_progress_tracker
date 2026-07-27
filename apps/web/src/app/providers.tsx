@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 
+import { ThemeProvider } from "../features/preferences/theme.js";
+
 interface AppProvidersProps {
   children: ReactNode;
   queryClient?: QueryClient;
@@ -21,5 +23,9 @@ export function AppProviders({ children, queryClient: providedClient }: AppProvi
       }),
   );
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </ThemeProvider>
+  );
 }
