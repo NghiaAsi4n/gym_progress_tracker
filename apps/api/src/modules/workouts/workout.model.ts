@@ -52,7 +52,7 @@ const setSchema = new Schema<WorkoutSetRecord>(
     weightKg: { type: Number, default: null, min: 0, max: 1_000 },
     reps: { type: Number, default: null, min: 0, max: 1_000 },
     isComplete: { type: Boolean, required: true, default: false },
-    notes: { type: String, required: true, default: "", maxlength: 500 },
+    notes: { type: String, default: "", maxlength: 500 },
   },
   { _id: false },
 );
@@ -91,7 +91,7 @@ const workoutSchema = new Schema<WorkoutRecord>(
     },
     source: { type: sourceSchema, required: true },
     exercises: { type: [exerciseSchema], required: true, default: [] },
-    notes: { type: String, required: true, default: "", maxlength: 2_000 },
+    notes: { type: String, default: "", maxlength: 2_000 },
     version: { type: Number, required: true, default: 1, min: 1 },
     startedAt: { type: Date, required: true, default: Date.now },
     completedAt: { type: Date, default: null },
