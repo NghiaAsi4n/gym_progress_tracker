@@ -17,6 +17,7 @@ export interface AuthTokenConfig {
 
 export function createTokenService(config: AuthTokenConfig) {
   const accessKey = new TextEncoder().encode(config.accessTokenSecret);
+  const refreshKey = new TextEncoder().encode(config.refreshTokenSecret);
 
   return {
     async issueAccessToken(userId: string): Promise<string> {
@@ -48,6 +49,56 @@ export function createTokenService(config: AuthTokenConfig) {
         }
 
         return payload.sub;
+      } catch {
+        throw new ApiError("UNAUTHENTICATED", "Authentication required");
+      }
+    },
+
+    async issueRefreshToken(userId: string, familyId: string = randomUUID()) {
+      const jti = randomUUID();
+
+      const token = await new SignJWT({ familyId, type: "refresh" })
+        .setProtectedHeader({ alg: JWT_ALGORITHM, typ: "JWT" })
+        .setAudience(config.accessTokenAudience)
+        .setExpirationTime(`${config.refreshTokenTtlSeconds}s`)
+        .setIssuedAt()
+        .setIssuer(config.accessTokenIssuer)
+        .setJti(jti)
+        .setSubject(userId)
+        .sign(refreshKey);
+
+      return {
+        expiresAt: new Date(Date.now() + config.refreshTokenTtlSeconds * 1_000),
+        familyId,
+        jti,
+        token,
+      };
+    },
+
+    async verifyRefreshToken(token: string) {
+      try {
+        const { payload } = await jwtVerify(token, refreshKey, {
+          algorithms: [JWT_ALGORITHM],
+          audience: config.accessTokenAudience,
+          issuer: config.accessTokenIssuer,
+        });
+
+        if (
+          payload.type !== "refresh" ||
+          typeof payload.sub !== "string" ||
+          !/^[\da-f]{24}$/.test(payload.sub) ||
+          typeof payload.jti !== "string" ||
+          typeof payload.familyId !== "string" ||
+          payload.familyId.length < 1
+        ) {
+          throw new Error("Invalid refresh claims");
+        }
+
+        return {
+          familyId: payload.familyId,
+          jti: payload.jti,
+          userId: payload.sub,
+        };
       } catch {
         throw new ApiError("UNAUTHENTICATED", "Authentication required");
       }

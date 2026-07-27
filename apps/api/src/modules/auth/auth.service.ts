@@ -1,5 +1,4 @@
 import type {
-  AuthResponse,
   LoginRequest,
   PublicUser,
   RegisterRequest,
@@ -8,10 +7,12 @@ import type {
 import { ApiError } from "../../shared/api-error.js";
 import type { UserRecord, UserRepository } from "../users/user.repository.js";
 import type { PasswordService } from "./password.service.js";
+import type { AuthResult, RefreshService } from "./refresh.service.js";
 import type { TokenService } from "./token.service.js";
 
 interface AuthServiceDependencies {
   passwordService: PasswordService;
+  refreshService: RefreshService;
   tokenService: TokenService;
   userRepository: UserRepository;
 }
@@ -34,20 +35,24 @@ export function toPublicUser(user: UserRecord): PublicUser {
 
 export function createAuthService({
   passwordService,
+  refreshService,
   tokenService,
   userRepository,
 }: AuthServiceDependencies) {
-  async function createAuthResponse(user: UserRecord): Promise<AuthResponse> {
+  async function createAuthResponse(user: UserRecord): Promise<AuthResult> {
     return {
-      data: {
-        accessToken: await tokenService.issueAccessToken(user._id.toString()),
-        user: toPublicUser(user),
+      auth: {
+        data: {
+          accessToken: await tokenService.issueAccessToken(user._id.toString()),
+          user: toPublicUser(user),
+        },
       },
+      refreshToken: await refreshService.createAuthSession(user._id.toString()),
     };
   }
 
   return {
-    async login(input: LoginRequest): Promise<AuthResponse> {
+    async login(input: LoginRequest): Promise<AuthResult> {
       const user = await userRepository.findCredentialsByEmail(input.email);
       const passwordMatches = await passwordService.verify(input.password, user?.passwordHash);
 
@@ -58,7 +63,7 @@ export function createAuthService({
       return createAuthResponse(user);
     },
 
-    async register(input: RegisterRequest): Promise<AuthResponse> {
+    async register(input: RegisterRequest): Promise<AuthResult> {
       const passwordHash = await passwordService.hash(input.password);
 
       try {

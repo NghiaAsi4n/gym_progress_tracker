@@ -7,6 +7,7 @@ import { createAuthenticateMiddleware } from "./modules/auth/auth.middleware.js"
 import { createAuthRouter } from "./modules/auth/auth.routes.js";
 import { createAuthService } from "./modules/auth/auth.service.js";
 import { createPasswordService } from "./modules/auth/password.service.js";
+import { createRefreshService } from "./modules/auth/refresh.service.js";
 import { createTokenService, type AuthTokenConfig } from "./modules/auth/token.service.js";
 import { createUserRouter } from "./modules/users/user.routes.js";
 import { createUserRepository } from "./modules/users/user.repository.js";
@@ -28,8 +29,12 @@ export function createApp(options: AppOptions) {
     options.auth.passwordScryptCost === undefined ? {} : { cost: options.auth.passwordScryptCost },
   );
   const userRepository = createUserRepository();
+  const refreshService = createRefreshService(tokenService, userRepository, {
+    refreshTokenTtlSeconds: options.auth.refreshTokenTtlSeconds,
+  });
   const authService = createAuthService({
     passwordService,
+    refreshService,
     tokenService,
     userRepository,
   });
@@ -44,7 +49,7 @@ export function createApp(options: AppOptions) {
     }),
   );
   app.use(express.json({ limit: "100kb" }));
-  app.use("/api/v1/auth", createAuthRouter(authService));
+  app.use("/api/v1/auth", createAuthRouter(authService, refreshService, options.webOrigin));
   app.use("/api/v1/me", createUserRouter(authenticate, userService));
 
   app.get("/api/v1/health", (_request, response) => {
