@@ -3,14 +3,12 @@ import type {
   Equipment,
   MovementPattern,
   MuscleGroup,
-  TrainingPlan,
 } from "@gym-tracking/contracts";
 
 import type { TranslationFunction } from "../../i18n/i18n-context.js";
 import type { TranslationKey } from "../../i18n/resources.js";
 
 type PlanningKey = TranslationKey<"planning">;
-type TrainingGoal = TrainingPlan["goal"];
 
 export function optionEntries<Option extends string>(
   labels: Record<Option, PlanningKey>,
@@ -68,10 +66,3 @@ export const DIFFICULTY_LABELS = {
   INTERMEDIATE: "difficultyIntermediate",
   ADVANCED: "difficultyAdvanced",
 } satisfies Record<Difficulty, PlanningKey>;
-
-export const TRAINING_GOAL_LABELS = {
-  STRENGTH: "goalStrength",
-  HYPERTROPHY: "goalHypertrophy",
-  FAT_LOSS: "goalFatLoss",
-  GENERAL: "goalGeneral",
-} satisfies Record<TrainingGoal, PlanningKey>;

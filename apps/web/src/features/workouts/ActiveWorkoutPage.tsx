@@ -1,13 +1,9 @@
 import type { Workout, WorkoutExercise } from "@gym-tracking/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  listExercises,
-  listScheduledWorkouts,
-  listTemplates,
-} from "../../services/planning-api.js";
+import { listExercises, listTemplates } from "../../services/planning-api.js";
 import {
   cancelWorkout,
   completeWorkout,
@@ -19,12 +15,6 @@ import { useUnit } from "../preferences/unit.js";
 import { useWorkoutDraft } from "./useWorkoutDraft.js";
 import { WorkoutExerciseEditor } from "./WorkoutExerciseEditor.js";
 
-function addDays(date: string, days: number): string {
-  const result = new Date(`${date}T00:00:00.000Z`);
-  result.setUTCDate(result.getUTCDate() + days);
-  return result.toISOString().slice(0, 10);
-}
-
 function newId(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(12));
   return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
@@ -32,17 +22,7 @@ function newId(): string {
 
 function WorkoutStartPanel({ onStarted }: { onStarted: () => void }) {
   const { t } = useI18n();
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const templates = useQuery({ queryKey: ["templates"], queryFn: listTemplates });
-  const calendar = useQuery({
-    queryKey: ["calendar", "workout-start", today],
-    queryFn: () =>
-      listScheduledWorkouts(
-        today,
-        addDays(today, 7),
-        Intl.DateTimeFormat().resolvedOptions().timeZone,
-      ),
-  });
   const start = useMutation({ mutationFn: createWorkoutDraft, onSuccess: onStarted });
 
   return (
@@ -62,37 +42,9 @@ function WorkoutStartPanel({ onStarted }: { onStarted: () => void }) {
       </div>
       <div className="workout-start-options">
         <h2>{t("workouts", "fromPlan")}</h2>
-        {calendar.data?.data.length ? (
-          <ul className="workout-option-list">
-            {calendar.data.data.map((workout) => (
-              <li key={`${workout.planId}-${workout.scheduledDate}`}>
-                <div>
-                  <strong>{workout.templateName}</strong>
-                  <small>{workout.scheduledDate}</small>
-                </div>
-                <button
-                  disabled={start.isPending}
-                  onClick={() =>
-                    start.mutate({
-                      source: {
-                        type: "SCHEDULED",
-                        planId: workout.planId,
-                        templateId: workout.templateId,
-                        scheduledDate: workout.scheduledDate,
-                      },
-                    })
-                  }
-                  type="button"
-                >
-                  {t("workouts", "start")}
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="helper-text">{t("workouts", "noScheduledWorkout")}</p>
-        )}
-        <h2>{t("workouts", "fromTemplate")}</h2>
+        {templates.data?.data.length === 0 ? (
+          <p className="helper-text">{t("workouts", "noPlansToStart")}</p>
+        ) : null}
         <ul className="workout-option-list">
           {templates.data?.data.map((template) => (
             <li key={template.id}>

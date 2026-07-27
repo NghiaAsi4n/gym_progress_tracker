@@ -1,19 +1,12 @@
 import {
   exerciseListResponseSchema,
   exerciseResponseSchema,
-  exerciseSuggestionListResponseSchema,
-  scheduledWorkoutListResponseSchema,
-  trainingPlanListResponseSchema,
-  trainingPlanResponseSchema,
   workoutTemplateListResponseSchema,
   workoutTemplateResponseSchema,
   type CreateExerciseRequest,
-  type CreateTrainingPlanRequest,
   type CreateWorkoutTemplateRequest,
   type ExerciseQuery,
-  type ScheduleOverrideRequest,
   type UpdateExerciseRequest,
-  type UpdateTrainingPlanRequest,
   type UpdateWorkoutTemplateRequest,
 } from "@gym-tracking/contracts";
 import type { z } from "zod";
@@ -71,36 +64,4 @@ export function updateTemplate(id: string, input: UpdateWorkoutTemplateRequest) 
 export async function deleteTemplate(id: string) {
   const response = await authenticatedFetch(`/workout-templates/${id}`, { method: "DELETE" });
   if (!response.ok) throw new ApiClientError("Unable to delete template", response.status);
-}
-
-export function listPlans() {
-  return request("/training-plans", trainingPlanListResponseSchema);
-}
-export function createPlan(input: CreateTrainingPlanRequest) {
-  return request("/training-plans", trainingPlanResponseSchema, json("POST", input));
-}
-export function updatePlan(id: string, input: UpdateTrainingPlanRequest) {
-  return request(`/training-plans/${id}`, trainingPlanResponseSchema, json("PATCH", input));
-}
-export async function deletePlan(id: string) {
-  const response = await authenticatedFetch(`/training-plans/${id}`, { method: "DELETE" });
-  if (!response.ok) throw new ApiClientError("Unable to delete plan", response.status);
-}
-export function listScheduledWorkouts(from: string, to: string, timeZone: string) {
-  const params = new URLSearchParams({ from, to, timeZone });
-  return request(`/scheduled-workouts?${params.toString()}`, scheduledWorkoutListResponseSchema);
-}
-export async function createScheduleOverride(input: ScheduleOverrideRequest) {
-  const response = await authenticatedFetch("/schedule-overrides", json("POST", input));
-  if (!response.ok) throw new ApiClientError("Unable to update schedule", response.status);
-}
-export function listSuggestions(planId: string) {
-  return request(`/training-plans/${planId}/suggestions`, exerciseSuggestionListResponseSchema);
-}
-export async function acceptSuggestion(planId: string, exerciseId: string, templateId: string) {
-  const response = await authenticatedFetch(
-    `/training-plans/${planId}/suggestions/${exerciseId}/accept`,
-    json("POST", { templateId }),
-  );
-  if (!response.ok) throw new ApiClientError("Unable to accept suggestion", response.status);
 }

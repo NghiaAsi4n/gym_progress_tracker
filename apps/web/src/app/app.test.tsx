@@ -192,6 +192,11 @@ describe("application shell", () => {
     });
 
     expect(within(navigation).queryByRole("button", { name: "Sign out" })).not.toBeInTheDocument();
+    expect(within(navigation).getByRole("link", { name: "Plan" })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(navigation).queryByRole("link", { name: "Templates" })).not.toBeInTheDocument();
     expect(within(accountControls).getByText(authenticatedUser.email)).toBeVisible();
     expect(within(accountControls).getByRole("button", { name: "Sign out" })).toBeVisible();
   });

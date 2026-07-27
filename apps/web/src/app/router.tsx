@@ -3,7 +3,6 @@ import type { RouteObject } from "react-router-dom";
 import { AuthPage } from "../features/auth/AuthPage.js";
 import { ProtectedRoute } from "../features/auth/ProtectedRoute.js";
 import { ExerciseCatalogPage } from "../features/planning/ExerciseCatalogPage.js";
-import { TrainingPlannerPage } from "../features/planning/TrainingPlannerPage.js";
 import { WorkoutTemplatesPage } from "../features/planning/WorkoutTemplatesPage.js";
 import { BodyWeightPage } from "../features/progress/BodyWeightPage.js";
 import { ProgressDashboardPage } from "../features/progress/ProgressDashboardPage.js";
@@ -44,14 +43,6 @@ export const appRoutes: RouteObject[] = [
         element: (
           <ProtectedRoute>
             <WorkoutTemplatesPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "training-plans",
-        element: (
-          <ProtectedRoute>
-            <TrainingPlannerPage />
           </ProtectedRoute>
         ),
       },

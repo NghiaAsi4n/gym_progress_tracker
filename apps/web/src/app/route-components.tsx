@@ -75,7 +75,6 @@ export function AppShell() {
               <>
                 <NavLink to="/exercises">{t("common", "navExercises")}</NavLink>
                 <NavLink to="/templates">{t("common", "navTemplates")}</NavLink>
-                <NavLink to="/training-plans">{t("common", "navPlan")}</NavLink>
                 <NavLink to="/workouts/active">{t("common", "navWorkout")}</NavLink>
                 <NavLink to="/workouts/history">{t("common", "navHistory")}</NavLink>
                 <NavLink to="/progress">{t("common", "navProgress")}</NavLink>

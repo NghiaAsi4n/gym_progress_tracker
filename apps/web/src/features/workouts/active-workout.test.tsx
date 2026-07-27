@@ -35,7 +35,6 @@ describe("active workout", () => {
       },
     });
     vi.mocked(planningApi.listTemplates).mockResolvedValue({ data: [] });
-    vi.mocked(planningApi.listScheduledWorkouts).mockResolvedValue({ data: [] });
     const user = userEvent.setup();
 
     render(
