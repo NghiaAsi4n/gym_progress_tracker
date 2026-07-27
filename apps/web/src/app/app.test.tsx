@@ -1,0 +1,98 @@
+import { QueryClient } from "@tanstack/react-query";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { AppErrorBoundary } from "./error-boundary.js";
+import { AppProviders } from "./providers.js";
+import { appRoutes } from "./router.js";
+
+function renderRoute(path: string) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+  const router = createMemoryRouter(appRoutes, {
+    initialEntries: [path],
+  });
+
+  return render(
+    <AppProviders queryClient={queryClient}>
+      <RouterProvider router={router} />
+    </AppProviders>,
+  );
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+describe("application shell", () => {
+  it("renders the home route and reports API health", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            status: "ok",
+            timestamp: "2026-07-27T08:00:00.000Z",
+            services: {
+              api: "up",
+              database: "connected",
+            },
+          },
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+          status: 200,
+        },
+      ),
+    );
+
+    renderRoute("/");
+
+    expect(screen.getByRole("heading", { level: 1, name: "Gym Progress Tracker" })).toBeVisible();
+    expect(await screen.findByText("API và MongoDB đã sẵn sàng.")).toBeVisible();
+    expect(fetch).toHaveBeenCalledWith(
+      "http://localhost:4000/api/v1/health",
+      expect.objectContaining({ headers: { Accept: "application/json" } }),
+    );
+  });
+
+  it("renders a useful 404 route", () => {
+    renderRoute("/khong-ton-tai");
+
+    expect(screen.getByRole("heading", { name: "Không tìm thấy trang" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Về trang chủ" })).toHaveAttribute("href", "/");
+  });
+
+  it("lets the user recover from a render error", async () => {
+    const user = userEvent.setup();
+    let shouldThrow = true;
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    function UnstableContent() {
+      if (shouldThrow) {
+        throw new Error("Test render error");
+      }
+      return <p>Nội dung đã phục hồi.</p>;
+    }
+
+    render(
+      <AppErrorBoundary
+        onReset={() => {
+          shouldThrow = false;
+        }}
+      >
+        <UnstableContent />
+      </AppErrorBoundary>,
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Đã có lỗi xảy ra");
+    await user.click(screen.getByRole("button", { name: "Thử lại" }));
+    expect(screen.getByText("Nội dung đã phục hồi.")).toBeVisible();
+  });
+});

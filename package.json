@@ -1,0 +1,44 @@
+{
+  "name": "gym-progress-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=11.0.0"
+  },
+  "scripts": {
+    "build": "npm run contracts:build && npm run build --workspace=@gym-tracking/api && npm run build --workspace=@gym-tracking/web",
+    "contracts:build": "npm run build --workspace=@gym-tracking/contracts",
+    "dev": "concurrently --kill-others --names contracts,api,web \"npm:dev --workspace=@gym-tracking/contracts\" \"npm:dev --workspace=@gym-tracking/api\" \"npm:dev --workspace=@gym-tracking/web\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings=0",
+    "postinstall": "npm run contracts:build",
+    "predev": "npm run contracts:build",
+    "pretest": "npm run contracts:build",
+    "pretypecheck": "npm run contracts:build",
+    "test": "npm run test --workspaces --if-present",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "test:e2e": "npm run test:e2e --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.1.1",
+    "@vitest/coverage-v8": "4.1.10",
+    "concurrently": "10.0.4",
+    "eslint": "10.8.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.3",
+    "globals": "17.8.0",
+    "prettier": "3.9.6",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.65.0",
+    "vitest": "4.1.10"
+  }
+}
