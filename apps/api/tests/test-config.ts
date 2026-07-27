@@ -14,3 +14,5 @@ export const TEST_ENV_SECRETS = {
   ACCESS_TOKEN_SECRET: TEST_AUTH_CONFIG.accessTokenSecret,
   REFRESH_TOKEN_SECRET: TEST_AUTH_CONFIG.refreshTokenSecret,
 } as const;
+
+export const TEST_WEB_ORIGIN = "http://localhost:5173";

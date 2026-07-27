@@ -12,11 +12,10 @@ import {
   refreshSessionSchema,
 } from "../src/modules/auth/refresh-session.model.js";
 import { UserModel } from "../src/modules/users/user.model.js";
-import { TEST_AUTH_CONFIG } from "./test-config.js";
+import { TEST_AUTH_CONFIG, TEST_WEB_ORIGIN } from "./test-config.js";
 
 const TEST_MONGODB_URI =
   process.env.TEST_REFRESH_MONGODB_URI ?? "mongodb://127.0.0.1:27017/gym_tracking_refresh_test";
-const WEB_ORIGIN = "http://localhost:5173";
 
 if (!/_test(?:\?|$)/.test(TEST_MONGODB_URI)) {
   throw new Error("TEST_REFRESH_MONGODB_URI must target a database ending in _test");
@@ -25,7 +24,7 @@ if (!/_test(?:\?|$)/.test(TEST_MONGODB_URI)) {
 const app = createApp({
   auth: TEST_AUTH_CONFIG,
   databaseStatus: () => "connected",
-  webOrigin: WEB_ORIGIN,
+  webOrigin: TEST_WEB_ORIGIN,
 });
 
 interface TestRefreshCookie {
@@ -68,10 +67,13 @@ function hashToken(token: string): string {
 }
 
 async function registerSession(email = "athlete@example.com") {
-  const response = await request(app).post("/api/v1/auth/register").send({
-    email,
-    password: "correct horse battery staple",
-  });
+  const response = await request(app)
+    .post("/api/v1/auth/register")
+    .set("Origin", TEST_WEB_ORIGIN)
+    .send({
+      email,
+      password: "correct horse battery staple",
+    });
 
   expect(response.status).toBe(201);
   return {
@@ -80,7 +82,7 @@ async function registerSession(email = "athlete@example.com") {
   };
 }
 
-async function refresh(cookie: TestRefreshCookie, origin = WEB_ORIGIN) {
+async function refresh(cookie: TestRefreshCookie, origin = TEST_WEB_ORIGIN) {
   return request(app)
     .post("/api/v1/auth/refresh")
     .set("Cookie", cookie.header)
@@ -221,7 +223,7 @@ describe("refresh rotation and logout", () => {
     const logout = await request(app)
       .post("/api/v1/auth/logout")
       .set("Cookie", initial.cookie.header)
-      .set("Origin", WEB_ORIGIN);
+      .set("Origin", TEST_WEB_ORIGIN);
 
     expect(logout.status).toBe(204);
     const cleared = readRefreshCookie(logout);

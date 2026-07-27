@@ -9,7 +9,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import { connectDatabase, disconnectDatabase } from "../src/config/database.js";
 import { UserModel } from "../src/modules/users/user.model.js";
-import { TEST_AUTH_CONFIG } from "./test-config.js";
+import { TEST_AUTH_CONFIG, TEST_WEB_ORIGIN } from "./test-config.js";
 
 const TEST_MONGODB_URI =
   process.env.TEST_MONGODB_URI ?? "mongodb://127.0.0.1:27017/gym_tracking_phase3_test";
@@ -22,12 +22,15 @@ function buildApp() {
   return createApp({
     auth: TEST_AUTH_CONFIG,
     databaseStatus: () => "connected",
-    webOrigin: "http://localhost:5173",
+    webOrigin: TEST_WEB_ORIGIN,
   });
 }
 
 async function register(email: string, password = "correct horse battery staple") {
-  return request(buildApp()).post("/api/v1/auth/register").send({ email, password });
+  return request(buildApp())
+    .post("/api/v1/auth/register")
+    .set("Origin", TEST_WEB_ORIGIN)
+    .send({ email, password });
 }
 
 beforeAll(async () => {
@@ -84,14 +87,20 @@ describe("register, login, and protected account API", () => {
   it("returns the same generic error for an unknown email and an incorrect password", async () => {
     await register("athlete@example.com");
 
-    const wrongPassword = await request(buildApp()).post("/api/v1/auth/login").send({
-      email: "athlete@example.com",
-      password: "this password is incorrect",
-    });
-    const unknownEmail = await request(buildApp()).post("/api/v1/auth/login").send({
-      email: "unknown@example.com",
-      password: "this password is incorrect",
-    });
+    const wrongPassword = await request(buildApp())
+      .post("/api/v1/auth/login")
+      .set("Origin", TEST_WEB_ORIGIN)
+      .send({
+        email: "athlete@example.com",
+        password: "this password is incorrect",
+      });
+    const unknownEmail = await request(buildApp())
+      .post("/api/v1/auth/login")
+      .set("Origin", TEST_WEB_ORIGIN)
+      .send({
+        email: "unknown@example.com",
+        password: "this password is incorrect",
+      });
 
     expect(wrongPassword.status).toBe(401);
     expect(unknownEmail.status).toBe(401);
@@ -108,14 +117,20 @@ describe("register, login, and protected account API", () => {
     await register("first@example.com");
     await register("second@example.com");
 
-    const firstLogin = await request(buildApp()).post("/api/v1/auth/login").send({
-      email: "FIRST@example.com",
-      password: "correct horse battery staple",
-    });
-    const secondLogin = await request(buildApp()).post("/api/v1/auth/login").send({
-      email: "second@example.com",
-      password: "correct horse battery staple",
-    });
+    const firstLogin = await request(buildApp())
+      .post("/api/v1/auth/login")
+      .set("Origin", TEST_WEB_ORIGIN)
+      .send({
+        email: "FIRST@example.com",
+        password: "correct horse battery staple",
+      });
+    const secondLogin = await request(buildApp())
+      .post("/api/v1/auth/login")
+      .set("Origin", TEST_WEB_ORIGIN)
+      .send({
+        email: "second@example.com",
+        password: "correct horse battery staple",
+      });
 
     expect(firstLogin.status).toBe(200);
     expect(secondLogin.status).toBe(200);
@@ -157,11 +172,14 @@ describe("register, login, and protected account API", () => {
   });
 
   it("validates request bodies and rejects client-supplied ownership fields", async () => {
-    const response = await request(buildApp()).post("/api/v1/auth/register").send({
-      email: "not-an-email",
-      password: "short",
-      userId: "another-user",
-    });
+    const response = await request(buildApp())
+      .post("/api/v1/auth/register")
+      .set("Origin", TEST_WEB_ORIGIN)
+      .send({
+        email: "not-an-email",
+        password: "short",
+        userId: "another-user",
+      });
 
     expect(response.status).toBe(422);
     const body = apiErrorResponseSchema.parse(response.body);

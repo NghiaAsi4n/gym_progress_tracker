@@ -8,7 +8,7 @@ import { ExerciseModel } from "../src/modules/exercises/exercise.model.js";
 import { createExerciseRepository } from "../src/modules/exercises/exercise.repository.js";
 import { systemExercises } from "../src/modules/exercises/exercise.seed.js";
 import { UserModel } from "../src/modules/users/user.model.js";
-import { TEST_AUTH_CONFIG } from "./test-config.js";
+import { TEST_AUTH_CONFIG, TEST_WEB_ORIGIN } from "./test-config.js";
 
 const TEST_MONGODB_URI =
   process.env.TEST_MONGODB_URI ?? "mongodb://127.0.0.1:27017/gym_tracking_phase3_test";
@@ -21,7 +21,7 @@ function buildApp() {
   return createApp({
     auth: TEST_AUTH_CONFIG,
     databaseStatus: () => "connected",
-    webOrigin: "http://localhost:5173",
+    webOrigin: TEST_WEB_ORIGIN,
   });
 }
 
@@ -45,8 +45,14 @@ async function registerAndLogin(suffix = "") {
   const app = buildApp();
   const email = `exercise${suffix}${Date.now()}@test.com`;
   const password = "Password1!";
-  await request(app).post("/api/v1/auth/register").send({ email, password });
-  const login = await request(app).post("/api/v1/auth/login").send({ email, password });
+  await request(app)
+    .post("/api/v1/auth/register")
+    .set("Origin", TEST_WEB_ORIGIN)
+    .send({ email, password });
+  const login = await request(app)
+    .post("/api/v1/auth/login")
+    .set("Origin", TEST_WEB_ORIGIN)
+    .send({ email, password });
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   return login.body.data.accessToken as string;
 }

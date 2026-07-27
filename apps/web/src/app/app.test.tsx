@@ -39,6 +39,67 @@ afterEach(() => {
 });
 
 describe("application shell", () => {
+  it("registers a new account from the registration page", async () => {
+    const user = userEvent.setup();
+    const email = "new-athlete@example.com";
+    const authPayload = {
+      data: {
+        accessToken:
+          "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwYWJjZGVmMTIzNDU2Nzg5MGFiY2RlZiJ9.signature",
+        user: {
+          id: "1234567890abcdef12345678",
+          email,
+          preferences: { locale: "vi", theme: "SYSTEM", unit: "KG" },
+        },
+      },
+    };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+
+      if (url.endsWith("/auth/refresh")) {
+        return Promise.resolve(new Response(undefined, { status: 401 }));
+      }
+      if (url.endsWith("/auth/register")) {
+        return Promise.resolve(
+          new Response(JSON.stringify(authPayload), {
+            headers: { "Content-Type": "application/json" },
+            status: 201,
+          }),
+        );
+      }
+      if (url.endsWith("/health")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              data: {
+                status: "ok",
+                timestamp: "2026-07-27T08:00:00.000Z",
+                services: { api: "up", database: "connected" },
+              },
+            }),
+            { headers: { "Content-Type": "application/json" }, status: 200 },
+          ),
+        );
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    renderRoute("/auth/register");
+    await user.type(screen.getByLabelText("Email"), email);
+    await user.type(screen.getByLabelText("Mat khau"), "SignupPassword1!");
+    await user.click(screen.getByRole("button", { name: "Dang ky" }));
+
+    expect(await screen.findByText(`Dang dang nhap voi ${email}`)).toBeVisible();
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:4000/api/v1/auth/register",
+      expect.objectContaining({
+        body: JSON.stringify({ email, password: "SignupPassword1!" }),
+        credentials: "include",
+        method: "POST",
+      }),
+    );
+  });
+
   it("renders the home route and reports API health", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(
