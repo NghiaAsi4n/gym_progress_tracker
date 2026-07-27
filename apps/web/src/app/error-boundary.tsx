@@ -1,5 +1,7 @@
 import { Component, type ReactNode } from "react";
 
+import { translate, type Locale } from "../i18n/resources.js";
+
 interface AppErrorBoundaryProps {
   children: ReactNode;
   onReset?: () => void;
@@ -29,13 +31,17 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
 
   public override render() {
     if (this.state.hasError) {
+      const locale: Locale = document.documentElement.lang.toLowerCase().startsWith("en")
+        ? "en"
+        : "vi";
+
       return (
         <main className="centered-state" role="alert">
           <p className="eyebrow">GYM PROGRESS TRACKER</p>
-          <h1>Đã có lỗi xảy ra</h1>
-          <p>Ứng dụng không thể hiển thị nội dung này. Bạn có thể thử tải lại phần giao diện.</p>
+          <h1>{translate(locale, "common", "errorTitle")}</h1>
+          <p>{translate(locale, "common", "errorDescription")}</p>
           <button className="button" type="button" onClick={this.reset}>
-            Thử lại
+            {translate(locale, "common", "errorRetry")}
           </button>
         </main>
       );

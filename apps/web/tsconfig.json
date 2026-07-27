@@ -5,6 +5,7 @@
     "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
     "types": ["vite/client", "vitest/globals"]
   },
   "include": ["src"]

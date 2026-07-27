@@ -2,8 +2,9 @@ import { QueryClient } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { LOCALE_STORAGE_KEY } from "../i18n/locale-storage.js";
 import { AppErrorBoundary } from "./error-boundary.js";
 import { AppProviders } from "./providers.js";
 import { appRoutes } from "./router.js";
@@ -27,8 +28,14 @@ function renderRoute(path: string) {
   );
 }
 
+beforeEach(() => {
+  localStorage.setItem(LOCALE_STORAGE_KEY, "vi");
+  document.documentElement.lang = "vi";
+});
+
 afterEach(() => {
   vi.restoreAllMocks();
+  localStorage.clear();
 });
 
 describe("application shell", () => {
@@ -69,6 +76,39 @@ describe("application shell", () => {
     expect(screen.getByRole("link", { name: "Về trang chủ" })).toHaveAttribute("href", "/");
   });
 
+  it("switches the complete shell between Vietnamese and English", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            status: "ok",
+            timestamp: "2026-07-27T08:00:00.000Z",
+            services: {
+              api: "up",
+              database: "connected",
+            },
+          },
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+          status: 200,
+        },
+      ),
+    );
+
+    renderRoute("/");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Ngôn ngữ" }), "en");
+
+    expect(screen.getByRole("link", { name: "Overview" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Service connection" })).toBeVisible();
+    expect(
+      screen.getByText(
+        "The foundation is ready for workout planning, set logging, and progress tracking.",
+      ),
+    ).toBeVisible();
+  });
+
   it("lets the user recover from a render error", async () => {
     const user = userEvent.setup();
     let shouldThrow = true;
@@ -94,5 +134,23 @@ describe("application shell", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Đã có lỗi xảy ra");
     await user.click(screen.getByRole("button", { name: "Thử lại" }));
     expect(screen.getByText("Nội dung đã phục hồi.")).toBeVisible();
+  });
+
+  it("localizes the render-error fallback from the document locale", () => {
+    document.documentElement.lang = "en";
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    function BrokenContent(): never {
+      throw new Error("Test render error");
+    }
+
+    render(
+      <AppErrorBoundary>
+        <BrokenContent />
+      </AppErrorBoundary>,
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Something went wrong");
+    expect(screen.getByRole("button", { name: "Try again" })).toBeVisible();
   });
 });
