@@ -335,253 +335,69 @@ Implemented exercise catalog hardening and responsive UI, workout-template CRUD/
 
 ### Task 15: Xây workout draft API
 
-**Mô tả:** Tạo workout từ template, calendar occurrence hoặc trống; cập nhật exercises/sets và chống ghi đè draft cũ.
-
-**Acceptance criteria:**
-
-- [ ] Chỉ có tối đa một active draft cho mỗi user.
-- [ ] PATCH dùng version field và trả conflict khi client cũ.
-- [ ] Set giữ order, weight, reps, completion và notes; scheduled workout giữ source occurrence.
-
-**Verification:**
-
-- [ ] Integration tests create/update/conflict/ownership.
-- [ ] Unit tests validation cho sets.
-
-**Dependencies:** Task 13.
-
-**Files dự kiến:** `packages/contracts/src/workout.ts`, `apps/api/src/modules/workouts/workout.model.ts`, `workout.service.ts`, `workout.routes.ts`, `workout-draft.integration.test.ts`.
-
-**Scope:** M.
+- [x] Tạo draft từ template, lịch hoặc workout trống; mỗi user chỉ có một draft đang hoạt động.
+- [x] Hỗ trợ cập nhật exercise/set, ghi chú, trạng thái hoàn thành và version conflict.
+- [x] Enforce ownership và lưu nguồn calendar occurrence nếu có.
 
 ### Task 16: Xây active-workout UI và autosave
 
-**Mô tả:** Tạo mobile-first workout screen, thao tác nhanh với set và autosave có trạng thái rõ.
-
-**Acceptance criteria:**
-
-- [ ] Thêm/xóa/reorder exercise và set bằng touch/keyboard.
-- [ ] Autosave debounce, retry có giới hạn và xử lý version conflict.
-- [ ] Reload phục hồi đúng draft gần nhất.
-
-**Verification:**
-
-- [ ] Component tests editing/autosave/conflict.
-- [ ] Manual mobile check với input bàn phím số.
-
-**Dependencies:** Task 15.
-
-**Files dự kiến:** `apps/web/src/features/workouts/ActiveWorkoutPage.tsx`, `ExerciseSetTable.tsx`, `useWorkoutDraft.ts`, `workout-api.ts`, `active-workout.test.tsx`.
-
-**Scope:** M.
+- [x] Xây màn hình mobile-first để thêm, xóa và sắp xếp exercise/set.
+- [x] Autosave có debounce, retry, xử lý conflict và phục hồi draft sau reload.
 
 ### Task 17: Complete workout và history
 
-**Mô tả:** Hoàn thành/hủy workout, list history có pagination và xem detail read-only.
-
-**Acceptance criteria:**
-
-- [ ] Complete ghi timestamp và reject session không hợp lệ.
-- [ ] History list/detail enforce ownership và sort mới nhất trước.
-- [ ] UI hiển thị duration, exercises, sets và volume.
-
-**Verification:**
-
-- [ ] API integration tests transitions, pagination và ownership.
-- [ ] E2E template → draft → reload → complete → history.
-
-**Dependencies:** Task 16.
-
-**Files dự kiến:** `apps/api/src/modules/workouts/workout-completion.service.ts`, `workout-history.integration.test.ts`, `apps/web/src/features/history/WorkoutHistoryPage.tsx`, `WorkoutDetailPage.tsx`, `workout-flow.spec.ts`.
-
-**Scope:** M.
-
-## Checkpoint 5
-
-- [ ] Workout logging core flow chạy end-to-end và giữ dữ liệu qua reload.
+- [x] Hoàn thành hoặc hủy workout và lưu timestamp, duration, volume.
+- [x] Xây history có phân trang, sắp xếp mới nhất và trang chi tiết read-only.
+- [x] Enforce ownership cho toàn bộ workout history.
 
 ## Phase 6: Progress tracking
 
 ### Task 18: Tính exercise progress
 
-**Mô tả:** Tính best weight, volume và Epley estimated 1RM từ completed workouts.
-
-**Acceptance criteria:**
-
-- [ ] Metrics gồm best weight, volume, Epley 1RM, reps-at-weight, weekly sets và PR history.
-- [ ] Endpoint trả time series theo range và exercise ownership/visibility.
-- [ ] Index/query plan đáp ứng dataset kiểm thử mục tiêu.
-
-**Verification:**
-
-- [ ] Unit tests metric edge cases và kg/lb conversion.
-- [ ] Integration test aggregation theo user/range.
-
-**Dependencies:** Task 17.
-
-**Files dự kiến:** `packages/contracts/src/progress.ts`, `apps/api/src/modules/progress/exercise-progress.service.ts`, `progress.routes.ts`, `exercise-progress.test.ts`, `progress.integration.test.ts`.
-
-**Scope:** M.
+- [ ] Tính best weight, volume, estimated 1RM, weekly sets và PR history.
+- [ ] Cung cấp time series theo khoảng thời gian và unit preference.
 
 ### Task 19: Xây body-weight CRUD
 
-**Mô tả:** Tạo một entry mỗi ngày, canonical kg storage, chỉnh sửa/xóa và hiển thị theo unit preference.
-
-**Acceptance criteria:**
-
-- [ ] Unique `{ userId, measuredOn }` được enforce ở DB và API.
-- [ ] Input kg/lb chuyển chính xác sang canonical kg.
-- [ ] CRUD UI và API enforce ownership.
-
-**Verification:**
-
-- [ ] Unit tests conversion/rounding.
-- [ ] API/component tests CRUD, duplicate date và ownership.
-
-**Dependencies:** Task 10.
-
-**Files dự kiến:** `packages/contracts/src/body-weight.ts`, `apps/api/src/modules/body-weight/body-weight.module.ts`, `body-weight.integration.test.ts`, `apps/web/src/features/body-weight/BodyWeightPage.tsx`, `body-weight.test.tsx`.
-
-**Scope:** M.
+- [ ] Xây API và UI thêm, sửa, xóa cân nặng theo ngày.
+- [ ] Lưu canonical kg, hiển thị kg/lb và enforce ownership.
 
 ### Task 20: Tính calorie tiêu hao ước tính
 
-**Mô tả:** Tính calorie của completed workout từ MET profile, duration và body-weight snapshot; hiển thị rõ là ước tính.
-
-**Acceptance criteria:**
-
-- [ ] Công thức/rounding đúng; chọn weight entry gần nhất không nằm sau ngày tập, thiếu input trả reason thay vì tự đoán.
-- [ ] Workout lưu `estimatedCalories`, input snapshot, method và `sourceVersion`.
-- [ ] Đổi profile tính lại có audit input; UI luôn gắn nhãn “ước tính”.
-
-**Verification:**
-
-- [ ] Unit tests cho MET profiles, formula, rounding và missing inputs.
-- [ ] Integration/component tests cho calculate/recalculate, ownership và localized label.
-
-**Dependencies:** Task 17, Task 19.
-
-**Files dự kiến:** `packages/contracts/src/calorie.ts`, `apps/api/src/modules/progress/calorie-estimate.service.ts`, `calorie-estimate.test.ts`, `apps/api/src/modules/workouts/workout-completion.service.ts`, `apps/web/src/features/history/CalorieEstimateCard.tsx`.
-
-**Scope:** M.
+- [ ] Ước tính calorie từ MET, duration và body-weight gần nhất.
+- [ ] Lưu input snapshot/method và hiển thị rõ đây là số liệu ước tính.
 
 ### Task 21: Xây progress charts và dashboard
 
-**Mô tả:** Hiển thị exercise/body-weight trends, calorie estimate, latest delta và summary cards trong dashboard Greek God.
-
-**Acceptance criteria:**
-
-- [ ] Charts lọc time range và cập nhật sau mutation.
-- [ ] Dữ liệu chart có text/table fallback và không chỉ dựa vào màu.
-- [ ] Dashboard tải độc lập từng widget và có empty/error/loading states.
-
-**Verification:**
-
-- [ ] Component tests transforms và UI states.
-- [ ] Visual/accessibility review light/dark, vi/en, mobile/desktop.
-
-**Dependencies:** Task 18, Task 19, Task 20.
-
-**Files dự kiến:** `apps/web/src/features/progress/ProgressDashboardPage.tsx`, `ExerciseProgressChart.tsx`, `BodyWeightChart.tsx`, `ProgressSummary.tsx`, `progress-dashboard.test.tsx`.
-
-**Scope:** M.
-
-## Checkpoint 6
-
-- [ ] Exercise, body-weight và calorie estimate chính xác, có nguồn, accessible và responsive.
+- [ ] Hiển thị exercise trend, body-weight trend, calorie và summary cards.
+- [ ] Hỗ trợ lọc khoảng thời gian cùng loading, empty và error states.
 
 ## Phase 7: Hardening
 
 ### Task 22: Security hardening
 
-**Mô tả:** Audit auth/input/ownership, thêm secure headers, request limits và rate limiting cho endpoint nhạy cảm.
-
-**Acceptance criteria:**
-
-- [ ] Auth endpoints có rate limit và cookie/CORS/Origin policy đúng môi trường.
-- [ ] Payload/query limits và centralized sanitization/validation được test.
-- [ ] Log không chứa password, JWT hoặc cookie.
-
-**Verification:**
-
-- [ ] Security integration tests cho CSRF, replay, IDOR và brute-force controls.
-- [ ] Dependency/security audit không còn issue nghiêm trọng chưa xử lý.
-
-**Dependencies:** Task 21.
-
-**Files dự kiến:** `apps/api/src/middleware/security.ts`, `rate-limit.ts`, `error-handler.ts`, `apps/api/src/config/security.ts`, `security.integration.test.ts`.
-
-**Scope:** M.
+- [ ] Thêm secure headers, rate limit và giới hạn payload/query.
+- [ ] Hoàn thiện cookie, CORS, Origin, validation và ownership policy.
+- [ ] Loại password, JWT và cookie khỏi log.
 
 ### Task 23: Hardening accessibility cho shared UI primitives
 
-**Mô tả:** Chuẩn hóa keyboard, screen-reader semantics, focus management và reduced motion ở các primitive dùng chung.
+- [ ] Chuẩn hóa keyboard, semantics, focus management và reduced motion.
+- [ ] Hoàn thiện Button, Input, Dialog và AppShell dùng chung.
 
-**Acceptance criteria:**
+### Task 24: Hoàn thiện responsive, i18n và theme
 
-- [ ] Button, input, dialog và app shell có semantics/focus đúng.
-- [ ] Dialog giữ focus, trả focus khi đóng và hỗ trợ Escape.
-- [ ] Automated accessibility test không có issue nghiêm trọng ở route shell.
+- [ ] Hoàn thiện nội dung vi/en, xử lý text overflow và responsive.
+- [ ] Đồng bộ light/dark theme, contrast và visual hierarchy trên các trang chính.
 
-**Verification:**
+### Task 25: Seed và local setup
 
-- [ ] Component tests bằng keyboard và accessibility matcher.
-- [ ] Manual screen-reader smoke test cho navigation và dialog.
-
-**Dependencies:** Task 21.
-
-**Files dự kiến:** `apps/web/src/components/ui/Button.tsx`, `Input.tsx`, `Dialog.tsx`, `apps/web/src/app/AppShell.tsx`, `apps/web/src/app/accessibility.test.tsx`.
-
-**Scope:** M.
-
-### Task 24: Audit responsive, bilingual content và theme
-
-**Mô tả:** Kiểm tra translation completeness, text overflow, contrast và visual consistency cho Greek God light/dark.
-
-**Acceptance criteria:**
-
-- [ ] Không thiếu key vi/en và không render raw translation key.
-- [ ] Core pages không overflow ở 360/768/1440 px.
-- [ ] Light/dark giữ contrast và hierarchy rõ, không phụ thuộc chỉ vào màu.
-
-**Verification:**
-
-- [ ] Chạy theme/i18n integration tests.
-- [ ] Ghi visual audit matrix vi/en × light/dark × breakpoints.
-
-**Dependencies:** Task 21, Task 23.
-
-**Files dự kiến:** `apps/web/src/i18n/vi/common.json`, `apps/web/src/i18n/en/common.json`, `apps/web/src/styles/global.css`, `e2e/theme-i18n.spec.ts`, `tasks/visual-audit.md`.
-
-**Scope:** M.
-
-### Task 25: E2E, seed và local operations
-
-**Mô tả:** Hoàn thiện Playwright journeys, deterministic seed và README cho setup/run/test.
-
-**Acceptance criteria:**
-
-- [ ] E2E bao phủ auth, schedule/suggestions, workout/calorie, body weight và preferences.
-- [ ] Seed tạo system exercises/dữ liệu demo idempotently.
-- [ ] Máy mới chạy được dự án theo README mà không cần secret thật.
-
-**Verification:**
-
-- [ ] `npm run lint && npm run typecheck && npm test && npm run test:e2e && npm run build`.
-- [ ] Thực hiện clean local setup theo README.
-
-**Dependencies:** Task 22, Task 24.
-
-**Files dự kiến:** `e2e/auth.spec.ts`, `e2e/workout.spec.ts`, `e2e/body-weight.spec.ts`, `apps/api/src/scripts/seed.ts`, `README.md`.
-
-**Scope:** M.
+- [ ] Tạo seed system exercises và dữ liệu demo theo cách idempotent.
+- [ ] Cập nhật README để máy mới có thể setup và chạy local.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria của task đạt và có bằng chứng verification.
-- [ ] Không bỏ qua hoặc xóa test để làm pipeline xanh.
-- [ ] Contract/schema và tài liệu cập nhật cùng behavior.
+- [ ] Feature hoạt động đầy đủ từ API đến UI.
+- [ ] Contract, schema và tài liệu được cập nhật theo behavior.
 - [ ] Dữ liệu cá nhân luôn enforce ownership.
 - [ ] Không commit secret hoặc token.
-- [ ] Lint, typecheck, test liên quan và build đều xanh.
-- [ ] UI change được kiểm tra vi/en, light/dark và mobile.

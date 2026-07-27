@@ -19,6 +19,8 @@ import {
   createWorkoutTemplateRouter,
   createWorkoutTemplateService,
 } from "./modules/workout-templates/workout-template.module.js";
+import { createWorkoutRouter } from "./modules/workouts/workout.routes.js";
+import { createWorkoutService } from "./modules/workouts/workout.service.js";
 import {
   createScheduleRouter,
   createTrainingPlanRouter,
@@ -54,6 +56,7 @@ export function createApp(options: AppOptions) {
   const userService = createUserService(userRepository);
   const workoutTemplateService = createWorkoutTemplateService();
   const trainingPlanService = createTrainingPlanService(workoutTemplateService);
+  const workoutService = createWorkoutService(workoutTemplateService, trainingPlanService);
   const exerciseRepository = createExerciseRepository();
   const exerciseService = createExerciseService(exerciseRepository, (userId, exerciseId) =>
     workoutTemplateService.isExerciseReferenced(userId, exerciseId),
@@ -75,6 +78,7 @@ export function createApp(options: AppOptions) {
     createWorkoutTemplateRouter(authenticate, workoutTemplateService),
   );
   app.use("/api/v1/training-plans", createTrainingPlanRouter(authenticate, trainingPlanService));
+  app.use("/api/v1/workouts", createWorkoutRouter(authenticate, workoutService));
   const scheduleRouters = createScheduleRouter(authenticate, trainingPlanService);
   app.use("/api/v1/scheduled-workouts", scheduleRouters.scheduled);
   app.use("/api/v1/schedule-overrides", scheduleRouters.overrides);

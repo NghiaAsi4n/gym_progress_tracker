@@ -84,6 +84,26 @@ export {
   type ExerciseSuggestion,
   type SuggestionReasonCode,
 } from "./suggestion.js";
+export {
+  createWorkoutDraftRequestSchema,
+  updateWorkoutDraftRequestSchema,
+  workoutExerciseSchema,
+  workoutHistoryQuerySchema,
+  workoutHistoryResponseSchema,
+  workoutResponseSchema,
+  workoutSchema,
+  workoutSetSchema,
+  workoutSourceSchema,
+  workoutStatusSchema,
+  workoutTransitionRequestSchema,
+  type CreateWorkoutDraftRequest,
+  type UpdateWorkoutDraftRequest,
+  type Workout,
+  type WorkoutExercise,
+  type WorkoutHistoryQuery,
+  type WorkoutSet,
+  type WorkoutTransitionRequest,
+} from "./workout.js";
 export { healthResponseSchema, type HealthResponse } from "./health.js";
 export {
   localePreferenceSchema,

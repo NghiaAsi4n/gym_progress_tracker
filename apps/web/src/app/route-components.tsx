@@ -33,6 +33,8 @@ export function AppShell() {
                 <Link to="/exercises">Exercises</Link>
                 <Link to="/templates">Templates</Link>
                 <Link to="/training-plans">Plan</Link>
+                <Link to="/workouts/active">Workout</Link>
+                <Link to="/workouts/history">History</Link>
                 <button className="text-button" onClick={() => void signOut()} type="button">
                   {t("auth", "logoutAction")}
                 </button>
