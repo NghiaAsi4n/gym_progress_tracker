@@ -89,7 +89,9 @@ describe("application shell", () => {
     await user.type(screen.getByLabelText("Mật khẩu"), "SignupPassword1!");
     await user.click(screen.getByRole("button", { name: "Đăng ký" }));
 
-    expect(await screen.findByText(`Đang đăng nhập với ${email}`)).toBeVisible();
+    const accountControls = await screen.findByRole("group", { name: "Tài khoản" });
+    expect(within(accountControls).getByText("Đang đăng nhập với")).toBeVisible();
+    expect(within(accountControls).getByText(email)).toBeVisible();
     expect(fetchMock).toHaveBeenCalledWith(
       "http://localhost:4000/api/v1/auth/register",
       expect.objectContaining({
@@ -128,6 +130,70 @@ describe("application shell", () => {
       "http://localhost:4000/api/v1/health",
       expect.objectContaining({ headers: { Accept: "application/json" } }),
     );
+  });
+
+  it("keeps sign out separate from primary navigation", async () => {
+    localStorage.setItem(LOCALE_STORAGE_KEY, "en");
+    document.documentElement.lang = "en";
+    const authenticatedUser = {
+      id: "1234567890abcdef12345678",
+      email: "athlete@example.com",
+      preferences: { locale: "en", theme: "SYSTEM", unit: "KG" },
+    };
+    const authPayload = {
+      data: {
+        accessToken:
+          "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwYWJjZGVmMTIzNDU2Nzg5MGFiY2RlZiJ9.signature",
+        user: authenticatedUser,
+      },
+    };
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+
+      if (url.endsWith("/auth/refresh")) {
+        return Promise.resolve(
+          new Response(JSON.stringify(authPayload), {
+            headers: { "Content-Type": "application/json" },
+            status: 200,
+          }),
+        );
+      }
+      if (url.endsWith("/me")) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ data: { user: authenticatedUser } }), {
+            headers: { "Content-Type": "application/json" },
+            status: 200,
+          }),
+        );
+      }
+      if (url.endsWith("/health")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              data: {
+                status: "ok",
+                timestamp: "2026-07-27T08:00:00.000Z",
+                services: { api: "up", database: "connected" },
+              },
+            }),
+            { headers: { "Content-Type": "application/json" }, status: 200 },
+          ),
+        );
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    renderRoute("/");
+
+    const header = screen.getByRole("banner");
+    const navigation = within(header).getByRole("navigation", { name: "Primary navigation" });
+    const accountControls = await within(header).findByRole("group", {
+      name: "Account controls",
+    });
+
+    expect(within(navigation).queryByRole("button", { name: "Sign out" })).not.toBeInTheDocument();
+    expect(within(accountControls).getByText(authenticatedUser.email)).toBeVisible();
+    expect(within(accountControls).getByRole("button", { name: "Sign out" })).toBeVisible();
   });
 
   it("renders a useful 404 route", () => {

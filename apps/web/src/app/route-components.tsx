@@ -20,13 +20,53 @@ export function AppShell() {
         {t("common", "skipToContent")}
       </a>
       <header className="site-header">
-        <div className="header-primary">
+        <div className="header-topbar">
           <Link className="brand" to="/">
             <span aria-hidden="true" className="brand-mark">
               Ω
             </span>
             <span>{t("common", "brandName")}</span>
           </Link>
+          <div className="header-tools">
+            <div className="preference-controls">
+              <LanguageSwitcher />
+              <UnitSwitcher label={t("common", "unitLabel")} />
+              <ThemeSwitcher
+                groupLabel={t("common", "themeGroupLabel")}
+                labels={{
+                  light: t("common", "themeLight"),
+                  dark: t("common", "themeDark"),
+                  system: t("common", "themeSystem"),
+                }}
+              />
+            </div>
+            {status === "authenticated" && user ? (
+              <div
+                aria-label={t("auth", "accountControlsLabel")}
+                className="account-controls"
+                role="group"
+              >
+                <div className="account-summary">
+                  <span aria-hidden="true" className="account-avatar">
+                    @
+                  </span>
+                  <span className="account-copy">
+                    <span>{t("auth", "accountLabel")}</span>
+                    <strong title={user.email}>{user.email}</strong>
+                  </span>
+                </div>
+                <Button
+                  className="sign-out-button"
+                  onClick={() => void signOut()}
+                  variant="secondary"
+                >
+                  {t("auth", "logoutAction")}
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+        <div className="header-navigation">
           <nav aria-label={t("common", "navigationLabel")}>
             <NavLink end to="/">
               {t("common", "overview")}
@@ -39,36 +79,16 @@ export function AppShell() {
                 <NavLink to="/workouts/active">{t("common", "navWorkout")}</NavLink>
                 <NavLink to="/workouts/history">{t("common", "navHistory")}</NavLink>
                 <NavLink to="/progress">{t("common", "navProgress")}</NavLink>
-                <button className="text-button" onClick={() => void signOut()} type="button">
-                  {t("auth", "logoutAction")}
-                </button>
               </>
             ) : (
-              <Link to="/auth/login">{t("auth", "loginAction")}</Link>
+              <NavLink to="/auth/login">{t("auth", "loginAction")}</NavLink>
             )}
           </nav>
-        </div>
-        <div className="preference-controls">
-          <LanguageSwitcher />
-          <UnitSwitcher label={t("common", "unitLabel")} />
-          <ThemeSwitcher
-            groupLabel={t("common", "themeGroupLabel")}
-            labels={{
-              light: t("common", "themeLight"),
-              dark: t("common", "themeDark"),
-              system: t("common", "themeSystem"),
-            }}
-          />
         </div>
       </header>
       <div id="main-content" tabIndex={-1}>
         <Outlet />
       </div>
-      {user ? (
-        <p className="account-indicator">
-          {t("auth", "accountLabel")} {user.email}
-        </p>
-      ) : null}
       <footer className="site-footer">
         <div className="footer-main">
           <div className="footer-brand">
