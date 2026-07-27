@@ -32,7 +32,7 @@ export function createUserRepository() {
             Object.entries(preferences).map(([key, value]) => [`preferences.${key}`, value]),
           ),
         },
-        { new: true, runValidators: true },
+        { returnDocument: "after", runValidators: true },
       ).lean<UserRecord>();
     },
   };
