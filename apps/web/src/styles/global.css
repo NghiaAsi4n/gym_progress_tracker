@@ -1049,14 +1049,25 @@ h2 {
   text-align: center;
 }
 
+.history-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  border-left: var(--border-accent) solid var(--color-accent);
+  background: var(--color-surface);
+}
+
 .history-list li > a {
   display: grid;
   gap: var(--space-4);
-  border-left: var(--border-accent) solid var(--color-accent);
-  background: var(--color-surface);
   color: inherit;
   padding: var(--space-4);
   text-decoration: none;
+}
+
+.history-list-actions {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3);
 }
 
 .history-list h2 {

@@ -319,6 +319,14 @@ export function createWorkoutService(
     async get(userId: string, id: string) {
       return { data: present(await findOwned(userId, id)) };
     },
+    async deleteHistory(userId: string, id: string): Promise<void> {
+      const workout = await findOwned(userId, id);
+      if (workout.status === "ACTIVE") {
+        throw new ApiError("CONFLICT", "Finish or cancel the active workout before deleting it");
+      }
+      const result = await WorkoutModel.deleteOne({ _id: workout._id, ownerId: userId }).exec();
+      if (result.deletedCount !== 1) throw new ApiError("NOT_FOUND", "Workout not found");
+    },
   };
 }
 

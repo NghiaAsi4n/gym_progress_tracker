@@ -55,12 +55,14 @@ export function cancelWorkout(id: string, version: number) {
 }
 
 export function listWorkoutHistory(page = 1, pageSize = 20) {
-  return request(
-    `/workouts?page=${page}&pageSize=${pageSize}`,
-    workoutHistoryResponseSchema,
-  );
+  return request(`/workouts?page=${page}&pageSize=${pageSize}`, workoutHistoryResponseSchema);
 }
 
 export function getWorkout(id: string) {
   return request(`/workouts/${id}`, workoutResponseSchema);
+}
+
+export async function deleteWorkout(id: string): Promise<void> {
+  const response = await authenticatedFetch(`/workouts/${id}`, { method: "DELETE" });
+  if (!response.ok) throw new ApiClientError("Unable to delete workout", response.status);
 }

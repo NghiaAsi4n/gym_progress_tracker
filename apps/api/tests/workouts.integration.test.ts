@@ -124,4 +124,29 @@ describe("workout draft API", () => {
     expect(workout.exercises).toHaveLength(1);
     expect(workout.exercises[0]?.sets.map(({ notes }) => notes)).toEqual(["", "", ""]);
   });
+
+  it("permanently deletes a cancelled workout from its owner's history", async () => {
+    const token = await register("delete-history@example.com");
+    const draft = await request(app)
+      .post("/api/v1/workouts/draft")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ source: { type: "EMPTY" } });
+    const workout = workoutResponseSchema.parse(draft.body).data;
+
+    const cancelled = await request(app)
+      .post(`/api/v1/workouts/${workout.id}/cancel`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ version: workout.version });
+
+    expect(cancelled.status).toBe(200);
+    const deleted = await request(app)
+      .delete(`/api/v1/workouts/${workout.id}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(deleted.status).toBe(204);
+    const history = await request(app)
+      .get("/api/v1/workouts")
+      .set("Authorization", `Bearer ${token}`);
+    expect(history.body.data).toEqual([]);
+  });
 });

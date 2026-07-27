@@ -1,9 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { Button } from "../../components/ui/Button.js";
+import { Dialog } from "../../components/ui/Dialog.js";
 import { useI18n } from "../../i18n/i18n-context.js";
-import { getWorkout, listWorkoutHistory } from "../../services/workout-api.js";
+import { deleteWorkout, getWorkout, listWorkoutHistory } from "../../services/workout-api.js";
 import { useUnit } from "../preferences/unit.js";
 
 type Translate = ReturnType<typeof useI18n>["t"];
@@ -29,10 +31,21 @@ function workoutStatus(status: "ACTIVE" | "COMPLETED" | "CANCELLED", t: Translat
 
 export function WorkoutHistoryPage() {
   const { locale, t } = useI18n();
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [workoutToDelete, setWorkoutToDelete] = useState<
+    Awaited<ReturnType<typeof listWorkoutHistory>>["data"][number] | null
+  >(null);
   const history = useQuery({
     queryKey: ["workout-history", page],
     queryFn: () => listWorkoutHistory(page),
+  });
+  const remove = useMutation({
+    mutationFn: deleteWorkout,
+    onSuccess: () => {
+      setWorkoutToDelete(null);
+      void queryClient.invalidateQueries({ queryKey: ["workout-history"] });
+    },
   });
 
   return (
@@ -77,6 +90,11 @@ export function WorkoutHistoryPage() {
                 </div>
               </dl>
             </Link>
+            <div className="history-list-actions">
+              <Button onClick={() => setWorkoutToDelete(workout)} variant="secondary">
+                {t("workouts", "deleteWorkout")}
+              </Button>
+            </div>
           </li>
         ))}
       </ul>
@@ -97,6 +115,39 @@ export function WorkoutHistoryPage() {
           </button>
         </nav>
       ) : null}
+      <Dialog
+        closeLabel={t("planning", "cancel")}
+        description={t("workouts", "deleteWorkoutDescription")}
+        isOpen={workoutToDelete !== null}
+        onClose={() => {
+          if (!remove.isPending) setWorkoutToDelete(null);
+        }}
+        title={t("workouts", "deleteWorkoutTitle")}
+      >
+        {workoutToDelete ? (
+          <div className="dialog-actions">
+            <Button
+              disabled={remove.isPending}
+              onClick={() => setWorkoutToDelete(null)}
+              variant="secondary"
+            >
+              {t("workouts", "keepWorkout")}
+            </Button>
+            <Button
+              isLoading={remove.isPending}
+              loadingLabel={t("workouts", "deleteWorkout")}
+              onClick={() => remove.mutate(workoutToDelete.id)}
+            >
+              {t("workouts", "deleteWorkout")}
+            </Button>
+            {remove.isError ? (
+              <p className="form-error" role="alert">
+                {t("workouts", "deleteWorkoutError")}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </Dialog>
     </main>
   );
 }

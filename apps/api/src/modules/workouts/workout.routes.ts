@@ -27,6 +27,10 @@ export function createWorkoutRouter(authenticate: RequestHandler, service: Worko
   router.get("/:id", async (request, response) => {
     response.json(await service.get(request.auth!.userId, request.params.id));
   });
+  router.delete("/:id", async (request, response) => {
+    await service.deleteHistory(request.auth!.userId, request.params.id);
+    response.status(204).end();
+  });
   router.patch("/:id", async (request, response) => {
     const input = validateInput(updateWorkoutDraftRequestSchema, request.body);
     response.json(await service.updateDraft(request.auth!.userId, request.params.id, input));

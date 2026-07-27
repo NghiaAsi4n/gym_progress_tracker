@@ -61,5 +61,10 @@
   "notCompleted": "Chưa hoàn thành",
   "statusActive": "Đang tập",
   "statusCompleted": "Đã hoàn thành",
-  "statusCancelled": "Đã hủy"
+  "statusCancelled": "Đã hủy",
+  "deleteWorkout": "Xóa buổi tập",
+  "deleteWorkoutTitle": "Xóa buổi tập này?",
+  "deleteWorkoutDescription": "Buổi tập sẽ bị xóa vĩnh viễn khỏi lịch sử.",
+  "keepWorkout": "Giữ lại buổi tập",
+  "deleteWorkoutError": "Không thể xóa buổi tập."
 }

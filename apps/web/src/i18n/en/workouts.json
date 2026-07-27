@@ -61,5 +61,10 @@
   "notCompleted": "Not completed",
   "statusActive": "Active",
   "statusCompleted": "Completed",
-  "statusCancelled": "Cancelled"
+  "statusCancelled": "Cancelled",
+  "deleteWorkout": "Delete workout",
+  "deleteWorkoutTitle": "Delete this workout?",
+  "deleteWorkoutDescription": "This permanently removes the workout from your history.",
+  "keepWorkout": "Keep workout",
+  "deleteWorkoutError": "Could not delete the workout."
 }
