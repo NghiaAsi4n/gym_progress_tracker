@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npm run contracts:build && npm run build --workspace=@gym-tracking/web",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "npm ci",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

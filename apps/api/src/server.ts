@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 import { createApp } from "./app.js";
 import { connectDatabase, disconnectDatabase, getDatabaseStatus } from "./config/database.js";
 import { loadRootEnvFile, parseEnv } from "./config/env.js";
@@ -22,6 +24,9 @@ export async function startServer() {
     },
     databaseStatus: getDatabaseStatus,
     nodeEnv: env.NODE_ENV,
+    ...(env.NODE_ENV === "production"
+      ? { webDistPath: fileURLToPath(new URL("../../web/dist/", import.meta.url)) }
+      : {}),
     webOrigin: env.WEB_ORIGIN,
   });
   const server = app.listen(env.PORT, () => {

@@ -12,7 +12,21 @@ interface RateEntry {
 
 export function createSecurityHeaders(nodeEnv: string): RequestHandler {
   return (_request, response, next) => {
-    response.setHeader("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'");
+    response.setHeader(
+      "Content-Security-Policy",
+      [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "connect-src 'self'",
+        "font-src 'self' https://fonts.gstatic.com",
+        "form-action 'self'",
+        "frame-ancestors 'none'",
+        "img-src 'self' data:",
+        "object-src 'none'",
+        "script-src 'self'",
+        "style-src 'self' https://fonts.googleapis.com",
+      ].join("; "),
+    );
     response.setHeader("Cross-Origin-Opener-Policy", "same-origin");
     response.setHeader("Cross-Origin-Resource-Policy", "same-site");
     response.setHeader("Permissions-Policy", "camera=(), geolocation=(), microphone=()");
