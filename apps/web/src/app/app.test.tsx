@@ -132,6 +132,49 @@ describe("application shell", () => {
     );
   });
 
+  it("offers clear training shortcuts from the home route", async () => {
+    localStorage.setItem(LOCALE_STORAGE_KEY, "en");
+    document.documentElement.lang = "en";
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+
+      if (url.endsWith("/auth/refresh")) {
+        return Promise.resolve(new Response(undefined, { status: 401 }));
+      }
+      if (url.endsWith("/health")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              data: {
+                status: "ok",
+                timestamp: "2026-07-27T08:00:00.000Z",
+                services: { api: "up", database: "connected" },
+              },
+            }),
+            { headers: { "Content-Type": "application/json" }, status: 200 },
+          ),
+        );
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    renderRoute("/");
+
+    const toolkit = await screen.findByRole("region", { name: "Your training toolkit" });
+    expect(within(toolkit).getByRole("link", { name: /Build your plan/ })).toHaveAttribute(
+      "href",
+      "/templates",
+    );
+    expect(within(toolkit).getByRole("link", { name: /Log every set/ })).toHaveAttribute(
+      "href",
+      "/workouts/active",
+    );
+    expect(within(toolkit).getByRole("link", { name: /See your progress/ })).toHaveAttribute(
+      "href",
+      "/progress",
+    );
+  });
+
   it("keeps sign out separate from primary navigation", async () => {
     localStorage.setItem(LOCALE_STORAGE_KEY, "en");
     document.documentElement.lang = "en";

@@ -11,7 +11,9 @@ import {
   WorkoutDetailPage,
   WorkoutHistoryPage,
 } from "../features/workouts/WorkoutHistoryPage.js";
-import { AppShell, HomePage, NotFoundPage } from "./route-components.js";
+import { HomePage } from "../features/home/HomePage.js";
+import { NotFoundPage } from "../features/not-found/NotFoundPage.js";
+import { AppShell } from "./AppShell.js";
 
 export const appRoutes: RouteObject[] = [
   {

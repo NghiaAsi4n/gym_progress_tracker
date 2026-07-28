@@ -1,4 +1,94 @@
-@import "./tokens.css";
+/* ==========================================================================
+   GREEK-THEME.CSS — file gộp duy nhất, thay thế tokens.css + global.css.
+   Cấu trúc: (1) token màu/khoảng cách/font đã nhuộm Hy Lạp, (2) toàn bộ
+   style layout gốc của app (không đổi), (3) phần bổ sung Hy Lạp mới.
+   ========================================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&display=swap");
+
+/* =========================================================================
+   TOKENS — bảng màu "Hy Lạp cổ đại": đá cẩm thạch ấm, vàng đồng cổ, mực
+   Aegean. Giữ nguyên TÊN biến gốc để mọi class trong phần còn lại của file
+   (vốn đã tham chiếu qua các biến này) tự động đổi theme mà không cần sửa.
+   Bổ sung --color-danger vì các nơi dùng nó (field-error, form-error...)
+   trước đây chỉ có fallback đỏ mặc định (#b42318), giờ cho nó một giá trị
+   thật là đỏ đất nung (oxblood) — đúng màu gốm Hy Lạp cổ.
+   ========================================================================= */
+
+:root {
+  color-scheme: light;
+
+  --color-canvas: #f5efe0;
+  --color-canvas-subtle: #ebe1c7;
+  --color-surface: #fbf7ec;
+  --color-surface-raised: #fffefa;
+  --color-surface-strong: #1b3a4b;
+  --color-text: #241f17;
+  --color-text-muted: #6c6353;
+  --color-text-on-strong: #f5efe0;
+  --color-border: #cdbf9c;
+  --color-border-strong: #8b7a54;
+  --color-accent: #a6752e;
+  --color-accent-strong: #7c531c;
+  --color-focus: #b87f30;
+  --color-success: #3f6b3a;
+  --color-danger: #8a2e22;
+  --color-marble-vein: #b9ae93;
+
+  --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+  --font-body:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --border-thin: 0.0625rem;
+  --border-accent: 0.3125rem;
+  --content-width: 70rem;
+
+  --shadow-raised: 0 1rem 2.5rem color-mix(in srgb, var(--color-text) 9%, transparent);
+  --motion-fast: 140ms;
+  --motion-standard: 220ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-canvas: #16140f;
+  --color-canvas-subtle: #1d1a13;
+  --color-surface: #221e15;
+  --color-surface-raised: #2b2519;
+  --color-surface-strong: #f0e6cc;
+  --color-text: #f0e6cc;
+  --color-text-muted: #bbae8c;
+  --color-text-on-strong: #17140e;
+  --color-border: #4a4230;
+  --color-border-strong: #7a6d4c;
+  --color-accent: #d2a24c;
+  --color-accent-strong: #e8be70;
+  --color-focus: #e8be70;
+  --color-success: #7fae72;
+  --color-danger: #c96a55;
+  --color-marble-vein: #33301f;
+
+  --shadow-raised: 0 1rem 2.5rem color-mix(in srgb, #000000 42%, transparent);
+}
+
+/* =========================================================================
+   LAYOUT & COMPONENT STYLES — nguyên bản từ global.css, không chỉnh sửa
+   selector/cấu trúc, chỉ ăn theo token màu mới ở trên.
+   ========================================================================= */
 
 :root {
   color: var(--color-text);
@@ -412,6 +502,8 @@ h2 {
 
 .language-switcher select {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 2.75rem;
   padding: 0 var(--space-8) 0 var(--space-3);
   border: var(--border-thin) solid var(--color-border);
@@ -435,6 +527,9 @@ h2 {
 }
 
 .unit-switcher select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 2.75rem;
   border: var(--border-thin) solid var(--color-border);
   border-radius: var(--radius-md);
@@ -1399,5 +1494,358 @@ h2 {
 
   .button:hover {
     transform: none;
+  }
+}
+
+/* =========================================================================
+   BỔ SUNG "HY LẠP" — chỉ thêm những gì thật sự mới (font, hoạ tiết, icon).
+   Không viết đè lại layout/spacing đã có ở trên; toàn bộ phần trên chỉ đổi
+   MÀU qua token, phần này mới là các điểm nhấn trực quan mới.
+   ========================================================================= */
+
+/* dải hoạ tiết "Greek key" (meander) — điểm nhấn chữ ký của theme.
+   Dùng CSS mask ở kích thước px cố định nên lặp lại đều, không bị kéo méo
+   dù header/footer rộng bao nhiêu. Thay cho phần .header-navigation không
+   có viền trên, và bổ sung phía trên .site-footer. */
+.header-navigation {
+  position: relative;
+}
+.header-navigation::before,
+.site-footer::before {
+  content: "";
+  display: block;
+  height: 0.625rem;
+  background-color: var(--color-accent);
+  opacity: 0.85;
+  -webkit-mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAxMiI+PHBhdGggZD0iTTAgOSBINiBWMyBIMTQgVjkgSDIwIiBmaWxsPSJub25lIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEuNiIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIvPjwvc3ZnPg==");
+  mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMCAxMiI+PHBhdGggZD0iTTAgOSBINiBWMyBIMTQgVjkgSDIwIiBmaWxsPSJub25lIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEuNiIgc3Ryb2tlLWxpbmVjYXA9InNxdWFyZSIvPjwvc3ZnPg==");
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: 1.25rem 0.625rem;
+  mask-size: 1.25rem 0.625rem;
+}
+.site-footer {
+  border-top: none; /* dải meander thay thế viền trên mặc định */
+}
+
+/* icon trong nav / eyebrow (thêm ở AppShell.tsx) — canh cỡ vừa chữ */
+.nav-icon {
+  width: 1em;
+  height: 1em;
+  margin-right: 0.35em;
+  color: var(--color-accent);
+  vertical-align: -0.125em;
+}
+.eyebrow-icon {
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 0.3em;
+  vertical-align: -0.15em;
+}
+
+/* icon nguyệt quế thay ký tự "@" trong account-avatar */
+.account-avatar svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-navigation::before,
+  .site-footer::before {
+    /* không có animation trên hoạ tiết, chỉ khai báo cho rõ ý định */
+  }
+}
+
+/* =========================================================================
+   HOME — dashboard mở đầu gọn, có thứ bậc và lối tắt rõ ràng.
+   ========================================================================= */
+
+.home-page {
+  display: grid;
+  width: min(calc(100% - var(--space-8)), var(--content-width));
+  margin-inline: auto;
+  gap: clamp(var(--space-10), 6vw, var(--space-16));
+  padding-block: clamp(var(--space-8), 6vw, var(--space-16));
+}
+
+.home-hero {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  border: var(--border-thin) solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+  overflow: hidden;
+}
+
+.home-hero::before {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--border-accent);
+  background: var(--color-accent);
+  content: "";
+}
+
+.home-hero::after {
+  position: absolute;
+  right: -7rem;
+  bottom: -9rem;
+  width: 22rem;
+  height: 22rem;
+  border: var(--border-thin) solid color-mix(in srgb, var(--color-accent) 28%, transparent);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.home-hero-copy {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  padding: clamp(var(--space-6), 6vw, var(--space-16));
+}
+
+.home-hero-copy h1 {
+  max-width: 12ch;
+  margin-bottom: var(--space-5);
+  font-size: clamp(2.75rem, 8vw, 5.5rem);
+}
+
+.home-lede {
+  max-width: 50ch;
+  margin-bottom: 0;
+  color: var(--color-text-muted);
+  font-size: clamp(1rem, 2vw, 1.15rem);
+}
+
+.home-hero-actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+  margin-top: var(--space-8);
+}
+
+.home-hero-actions .button {
+  gap: var(--space-2);
+  padding-inline: var(--space-5);
+}
+
+.home-hero-actions .button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.home-text-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-weight: 750;
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+  text-underline-offset: var(--space-1);
+}
+
+.home-text-link:hover {
+  color: var(--color-accent-strong);
+}
+
+.home-status-card {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  align-content: space-between;
+  border: 0;
+  background: var(--color-surface-strong);
+  box-shadow: none;
+  color: var(--color-text-on-strong);
+  gap: var(--space-10);
+  min-width: 0;
+  padding: clamp(var(--space-6), 5vw, var(--space-10));
+}
+
+.home-status-heading {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.home-status-heading .eyebrow {
+  margin-bottom: var(--space-2);
+}
+
+.home-status-heading h2 {
+  max-width: 12ch;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.home-status-icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  border: var(--border-thin) solid color-mix(in srgb, var(--color-accent) 62%, transparent);
+  color: var(--color-accent);
+  place-items: center;
+}
+
+.home-status-icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.home-status-result {
+  border-top: var(--border-thin) solid
+    color-mix(in srgb, var(--color-text-on-strong) 24%, transparent);
+  padding-top: var(--space-5);
+}
+
+.home-status-result p {
+  margin-bottom: 0;
+}
+
+.home-status-result .button-secondary {
+  border-color: currentColor;
+  color: var(--color-text-on-strong);
+}
+
+.home-status-result .success-status {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.home-status-result .success-status span {
+  flex: 0 0 auto;
+  line-height: 1.5;
+}
+
+.home-toolkit {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.home-section-heading {
+  display: grid;
+  border-top: var(--border-thin) solid var(--color-border);
+  gap: var(--space-5);
+  padding-top: var(--space-6);
+}
+
+.home-section-heading h2 {
+  max-width: 16ch;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.home-section-heading > p {
+  max-width: 55ch;
+  margin-bottom: 0;
+  color: var(--color-text-muted);
+}
+
+.home-toolkit-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.home-tool-card {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 18rem;
+  align-content: start;
+  border: var(--border-thin) solid var(--color-border);
+  background: var(--color-surface);
+  gap: var(--space-3);
+  padding: var(--space-6);
+  text-decoration: none;
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+
+.home-tool-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-0.2rem);
+}
+
+.home-tool-card h3 {
+  margin: var(--space-5) 0 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.15;
+}
+
+.home-tool-card p {
+  margin-bottom: var(--space-6);
+  color: var(--color-text-muted);
+}
+
+.home-tool-number {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.home-tool-icon {
+  position: absolute;
+  top: var(--space-6);
+  right: var(--space-6);
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--color-accent);
+}
+
+.home-tool-link {
+  display: inline-flex;
+  align-items: center;
+  align-self: end;
+  gap: var(--space-2);
+  margin-top: auto;
+  color: var(--color-accent-strong);
+  font-weight: 800;
+}
+
+@media (max-width: 40rem) {
+  .home-hero-actions {
+    align-items: stretch;
+  }
+
+  .home-hero-actions .button,
+  .home-text-link {
+    width: 100%;
+  }
+
+  .home-text-link {
+    justify-content: space-between;
+  }
+}
+
+@media (min-width: 48rem) {
+  .home-section-heading {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.8fr);
+    align-items: end;
+  }
+
+  .home-section-heading > p {
+    justify-self: end;
+  }
+
+  .home-toolkit-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .home-hero {
+    grid-template-columns: minmax(0, 1.55fr) minmax(19rem, 0.7fr);
+  }
+
+  .home-status-card {
+    margin: var(--space-4);
   }
 }

@@ -5,7 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AppErrorBoundary } from "./app/error-boundary.js";
 import { AppProviders } from "./app/providers.js";
 import { appRoutes } from "./app/router.js";
-import "./styles/global.css";
+import "./styles/greek-theme.css";
 
 const rootElement = document.getElementById("root");
 
