@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import request from "supertest";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createApp } from "../src/app.js";
 import { TEST_AUTH_CONFIG } from "./test-config.js";
@@ -24,6 +24,7 @@ describe("production web hosting", () => {
   });
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     await rm(webDistPath, { force: true, recursive: true });
   });
 
@@ -75,5 +76,15 @@ describe("production web hosting", () => {
         message: "Route not found",
       },
     });
+  });
+
+  it("does not enable SPA hosting when the web build is absent", async () => {
+    await rm(join(webDistPath, "index.html"));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const response = await request(createProductionApp()).get("/");
+
+    expect(response.status).toBe(404);
+    expect(consoleError).not.toHaveBeenCalled();
   });
 });

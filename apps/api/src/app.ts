@@ -1,6 +1,7 @@
 import type { ApiErrorResponse, HealthResponse } from "@gym-tracking/contracts";
 import cors from "cors";
 import express, { type NextFunction, type Request, type Response } from "express";
+import { existsSync } from "node:fs";
 import { join, sep } from "node:path";
 
 import type { DatabaseStatus } from "./config/database.js";
@@ -140,26 +141,29 @@ export function createApp(options: AppOptions) {
 
   if (options.webDistPath) {
     const indexPath = join(options.webDistPath, "index.html");
-    const assetPathSegment = `${sep}assets${sep}`;
 
-    app.use(
-      express.static(options.webDistPath, {
-        fallthrough: true,
-        index: false,
-        setHeaders: (response, filePath) => {
-          response.setHeader(
-            "Cache-Control",
-            filePath.includes(assetPathSegment)
-              ? "public, max-age=31536000, immutable"
-              : "no-cache",
-          );
-        },
-      }),
-    );
-    app.get("/{*path}", (_request, response) => {
-      response.setHeader("Cache-Control", "no-cache");
-      response.sendFile(indexPath);
-    });
+    if (existsSync(indexPath)) {
+      const assetPathSegment = `${sep}assets${sep}`;
+
+      app.use(
+        express.static(options.webDistPath, {
+          fallthrough: true,
+          index: false,
+          setHeaders: (response, filePath) => {
+            response.setHeader(
+              "Cache-Control",
+              filePath.includes(assetPathSegment)
+                ? "public, max-age=31536000, immutable"
+                : "no-cache",
+            );
+          },
+        }),
+      );
+      app.get("/{*path}", (_request, response) => {
+        response.setHeader("Cache-Control", "no-cache");
+        response.sendFile(indexPath);
+      });
+    }
   }
 
   app.use((error: unknown, _request: Request, response: Response, _next: NextFunction): void => {
