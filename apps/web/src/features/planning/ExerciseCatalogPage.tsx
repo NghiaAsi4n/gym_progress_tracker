@@ -13,10 +13,12 @@ import type {
 import { useI18n } from "../../i18n/i18n-context.js";
 import {
   createExercise,
+  createSystemExercise,
   deleteExercise,
   listExercises,
   updateExercise,
 } from "../../services/planning-api.js";
+import { useAuth } from "../auth/AuthProvider.js";
 import {
   DIFFICULTY_LABELS,
   EQUIPMENT_LABELS,
@@ -31,8 +33,11 @@ const MOVEMENT_OPTIONS = optionEntries(MOVEMENT_LABELS);
 const EQUIPMENT_OPTIONS = optionEntries(EQUIPMENT_LABELS);
 const DIFFICULTY_OPTIONS = optionEntries(DIFFICULTY_LABELS);
 
+type ExerciseVisibility = "PRIVATE" | "SYSTEM";
+
 export function ExerciseCatalogPage() {
   const { t } = useI18n();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [muscleGroup, setMuscleGroup] = useState<MuscleGroup | "">("");
@@ -42,6 +47,7 @@ export function ExerciseCatalogPage() {
   const [movementPattern, setMovementPattern] = useState<MovementPattern>("ISOLATION");
   const [equipment, setEquipment] = useState<Equipment>("BODYWEIGHT");
   const [difficulty, setDifficulty] = useState<Difficulty>("BEGINNER");
+  const [visibility, setVisibility] = useState<ExerciseVisibility>("PRIVATE");
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [editName, setEditName] = useState("");
   const exercises = useQuery({
@@ -55,7 +61,12 @@ export function ExerciseCatalogPage() {
       }),
   });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["exercises"] });
-  const create = useMutation({ mutationFn: createExercise, onSuccess: refresh });
+  const canCreateSystemExercise = user?.role === "ADMIN";
+  const createsSystemExercise = canCreateSystemExercise && visibility === "SYSTEM";
+  const create = useMutation({
+    mutationFn: createsSystemExercise ? createSystemExercise : createExercise,
+    onSuccess: refresh,
+  });
   const update = useMutation({
     mutationFn: ({ id, nextName }: { id: string; nextName: string }) =>
       updateExercise(id, { name: nextName }),
@@ -218,6 +229,46 @@ export function ExerciseCatalogPage() {
         </div>
         <form className="planning-panel planning-form" onSubmit={submit}>
           <h2>{t("planning", "createCustomExercise")}</h2>
+          {canCreateSystemExercise ? (
+            <fieldset className="exercise-visibility-fieldset">
+              <legend>{t("planning", "exerciseVisibility")}</legend>
+              <div className="exercise-visibility-options">
+                <label
+                  className={
+                    visibility === "PRIVATE"
+                      ? "exercise-visibility-option exercise-visibility-option-selected"
+                      : "exercise-visibility-option"
+                  }
+                >
+                  <input
+                    checked={visibility === "PRIVATE"}
+                    name="exercise-visibility"
+                    onChange={() => setVisibility("PRIVATE")}
+                    type="radio"
+                    value="PRIVATE"
+                  />
+                  {t("planning", "privateExercise")}
+                </label>
+                <label
+                  className={
+                    visibility === "SYSTEM"
+                      ? "exercise-visibility-option exercise-visibility-option-selected"
+                      : "exercise-visibility-option"
+                  }
+                >
+                  <input
+                    checked={visibility === "SYSTEM"}
+                    name="exercise-visibility"
+                    onChange={() => setVisibility("SYSTEM")}
+                    type="radio"
+                    value="SYSTEM"
+                  />
+                  {t("planning", "sharedExercise")}
+                </label>
+              </div>
+              <small>{t("planning", "exerciseVisibilityHint")}</small>
+            </fieldset>
+          ) : null}
           <label>
             {t("planning", "exerciseName")}
             <input
@@ -275,7 +326,7 @@ export function ExerciseCatalogPage() {
           </label>
           {create.isError ? <p role="alert">{t("planning", "createExerciseError")}</p> : null}
           <button className="button button-primary" disabled={create.isPending} type="submit">
-            {t("planning", "createExercise")}
+            {t("planning", createsSystemExercise ? "createSharedExercise" : "createExercise")}
           </button>
         </form>
       </section>

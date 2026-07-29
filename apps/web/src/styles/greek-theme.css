@@ -775,6 +775,53 @@ h2 {
   gap: var(--space-4);
 }
 
+.exercise-visibility-fieldset {
+  display: grid;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  gap: var(--space-2);
+}
+
+.exercise-visibility-fieldset legend {
+  padding: 0;
+  font-weight: 700;
+}
+
+.exercise-visibility-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-2);
+}
+
+.planning-form .exercise-visibility-option {
+  display: flex;
+  align-items: center;
+  border: var(--border-thin) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-canvas-subtle);
+  cursor: pointer;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.planning-form .exercise-visibility-option-selected {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-surface));
+}
+
+.planning-form .exercise-visibility-option input {
+  width: auto;
+  min-height: auto;
+  padding: 0;
+  accent-color: var(--color-accent);
+}
+
+.exercise-visibility-fieldset > small {
+  color: var(--color-text-muted);
+}
+
 .muscle-group-fieldset {
   display: grid;
   min-width: 0;

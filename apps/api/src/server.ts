@@ -5,6 +5,9 @@ import { connectDatabase, disconnectDatabase, getDatabaseStatus } from "./config
 import { loadRootEnvFile, parseEnv } from "./config/env.js";
 import { createExerciseRepository } from "./modules/exercises/exercise.repository.js";
 import { systemExercises } from "./modules/exercises/exercise.seed.js";
+import { createPasswordService } from "./modules/auth/password.service.js";
+import { createAdminBootstrapService } from "./modules/users/admin-bootstrap.service.js";
+import { createUserRepository } from "./modules/users/user.repository.js";
 import { createShutdownHandler } from "./shared/graceful-shutdown.js";
 
 export async function startServer() {
@@ -12,6 +15,12 @@ export async function startServer() {
   const env = parseEnv();
   await connectDatabase(env.MONGODB_URI);
   await createExerciseRepository().seedSystemExercises(systemExercises);
+  if (env.ADMIN_EMAIL && env.ADMIN_PASSWORD) {
+    await createAdminBootstrapService(createUserRepository(), createPasswordService()).ensureAdmin({
+      email: env.ADMIN_EMAIL,
+      password: env.ADMIN_PASSWORD,
+    });
+  }
 
   const app = createApp({
     auth: {

@@ -138,6 +138,7 @@ export {
   publicUserSchema,
   themePreferenceSchema,
   unitPreferenceSchema,
+  userRoleSchema,
   userPreferencesSchema,
   type LocalePreference,
   type MeResponse,
@@ -146,5 +147,6 @@ export {
   type PublicUser,
   type ThemePreference,
   type UnitPreference,
+  type UserRole,
   type UserPreferences,
 } from "./user.js";

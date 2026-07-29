@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { Exercise } from "@gym-tracking/contracts";
+import type { Exercise, PublicUser } from "@gym-tracking/contracts";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -7,13 +7,30 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { I18nProvider } from "../../i18n/index.js";
 import type { Locale } from "../../i18n/resources.js";
 import * as api from "../../services/planning-api.js";
+import { useAuth } from "../auth/AuthProvider.js";
 import { ExerciseCatalogPage } from "./ExerciseCatalogPage.js";
 import { WorkoutTemplatesPage } from "./WorkoutTemplatesPage.js";
 
 vi.mock("../../services/planning-api.js");
+vi.mock("../auth/AuthProvider.js", () => ({ useAuth: vi.fn() }));
+
+const authenticatedUser: PublicUser = {
+  id: "507f1f77bcf86cd799439014",
+  email: "athlete@example.com",
+  preferences: { locale: "en", theme: "SYSTEM", unit: "KG" },
+  role: "USER",
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(useAuth).mockReturnValue({
+    setUser: vi.fn(),
+    signIn: vi.fn(() => Promise.resolve(authenticatedUser)),
+    signOut: vi.fn(() => Promise.resolve()),
+    signUp: vi.fn(() => Promise.resolve(authenticatedUser)),
+    status: "authenticated",
+    user: authenticatedUser,
+  });
 });
 
 const exercise: Exercise = {
@@ -86,6 +103,42 @@ describe("Phase 4 planning UI", () => {
     await user.click(screen.getByRole("button", { name: "Create exercise" }));
 
     expect(screen.getByRole("alert")).toHaveTextContent("Select at least one muscle group.");
+    expect(api.createExercise).not.toHaveBeenCalled();
+  });
+
+  it("lets an admin create an exercise shared with every user", async () => {
+    const adminUser: PublicUser = { ...authenticatedUser, role: "ADMIN" };
+    vi.mocked(useAuth).mockReturnValue({
+      setUser: vi.fn(),
+      signIn: vi.fn(() => Promise.resolve(adminUser)),
+      signOut: vi.fn(() => Promise.resolve()),
+      signUp: vi.fn(() => Promise.resolve(adminUser)),
+      status: "authenticated",
+      user: adminUser,
+    });
+    vi.mocked(api.listExercises).mockResolvedValue({
+      data: [exercise],
+      pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 },
+    });
+    vi.mocked(api.createSystemExercise).mockResolvedValue({
+      data: { ...exercise, id: "507f1f77bcf86cd799439012", name: "Cable Fly" },
+    });
+    const user = userEvent.setup();
+    renderPage(<ExerciseCatalogPage />);
+
+    expect(screen.getByRole("radio", { name: "Only me" })).toBeChecked();
+    await user.click(screen.getByRole("radio", { name: "All users" }));
+    await user.type(screen.getByLabelText("Exercise name"), "Cable Fly");
+    await user.click(screen.getByRole("checkbox", { name: "Chest" }));
+    await user.click(screen.getByRole("button", { name: "Create shared exercise" }));
+
+    expect(api.createSystemExercise).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Cable Fly",
+        muscleGroups: ["CHEST"],
+      }),
+      expect.anything(),
+    );
     expect(api.createExercise).not.toHaveBeenCalled();
   });
 
@@ -229,5 +282,4 @@ describe("Phase 4 planning UI", () => {
       expect.anything(),
     );
   });
-
 });

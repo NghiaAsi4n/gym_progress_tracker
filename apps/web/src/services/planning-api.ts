@@ -44,6 +44,9 @@ export function listExercises(query: Partial<ExerciseQuery> = {}) {
 export function createExercise(input: CreateExerciseRequest) {
   return request("/exercises", exerciseResponseSchema, json("POST", input));
 }
+export function createSystemExercise(input: CreateExerciseRequest) {
+  return request("/exercises/system", exerciseResponseSchema, json("POST", input));
+}
 export function updateExercise(id: string, input: UpdateExerciseRequest) {
   return request(`/exercises/${id}`, exerciseResponseSchema, json("PATCH", input));
 }

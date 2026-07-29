@@ -5,6 +5,7 @@ import {
   loginRequestSchema,
   meResponseSchema,
   preferencesPatchRequestSchema,
+  publicUserSchema,
   registerRequestSchema,
   userPreferencesSchema,
 } from "./index.js";
@@ -20,6 +21,7 @@ const publicUser = {
     theme: "SYSTEM",
     unit: "KG",
   },
+  role: "USER",
 };
 
 describe("auth and account preference contracts", () => {
@@ -92,6 +94,19 @@ describe("auth and account preference contracts", () => {
         },
       }).success,
     ).toBe(false);
+  });
+
+  it("defaults legacy users to USER and accepts the ADMIN role", () => {
+    const legacyUser = {
+      id: publicUser.id,
+      email: publicUser.email,
+      preferences: publicUser.preferences,
+    };
+    expect(publicUserSchema.parse(legacyUser)).toMatchObject({ role: "USER" });
+    expect(publicUserSchema.parse({ ...publicUser, role: "ADMIN" })).toMatchObject({
+      role: "ADMIN",
+    });
+    expect(publicUserSchema.safeParse({ ...publicUser, role: "OWNER" }).success).toBe(false);
   });
 
   it("only accepts supported account preference enums", () => {

@@ -12,6 +12,7 @@ import {
   handleBodyParserError,
 } from "./middleware/security.js";
 import { createAuthenticateMiddleware } from "./modules/auth/auth.middleware.js";
+import { createRequireRoleMiddleware } from "./modules/auth/authorization.middleware.js";
 import { createAuthRouter } from "./modules/auth/auth.routes.js";
 import { createAuthService } from "./modules/auth/auth.service.js";
 import { createPasswordService } from "./modules/auth/password.service.js";
@@ -68,6 +69,7 @@ export function createApp(options: AppOptions) {
     userRepository,
   });
   const authenticate = createAuthenticateMiddleware(tokenService);
+  const requireAdmin = createRequireRoleMiddleware(userRepository, "ADMIN");
   const userService = createUserService(userRepository);
   const workoutTemplateService = createWorkoutTemplateService();
   const trainingPlanService = createTrainingPlanService(workoutTemplateService);
@@ -100,7 +102,7 @@ export function createApp(options: AppOptions) {
     createAuthRouter(authService, refreshService, options.webOrigin),
   );
   app.use("/api/v1/me", createUserRouter(authenticate, userService));
-  app.use("/api/v1/exercises", createExerciseRouter(authenticate, exerciseService));
+  app.use("/api/v1/exercises", createExerciseRouter(authenticate, requireAdmin, exerciseService));
   app.use(
     "/api/v1/workout-templates",
     createWorkoutTemplateRouter(authenticate, workoutTemplateService),

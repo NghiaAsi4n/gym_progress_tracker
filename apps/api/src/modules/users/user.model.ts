@@ -1,4 +1,4 @@
-import type { UserPreferences } from "@gym-tracking/contracts";
+import type { UserPreferences, UserRole } from "@gym-tracking/contracts";
 import mongoose, { model, Schema, type Model } from "mongoose";
 
 const preferencesSchema = new Schema<UserPreferences>(
@@ -31,6 +31,7 @@ export interface UserRecord {
   normalizedEmail: string;
   passwordHash: string;
   preferences: UserPreferences;
+  role?: UserRole;
   updatedAt: Date;
 }
 
@@ -55,6 +56,12 @@ const userSchema = new Schema<UserRecord>(
       }),
       required: true,
       type: preferencesSchema,
+    },
+    role: {
+      default: "USER",
+      enum: ["USER", "ADMIN"],
+      required: true,
+      type: String,
     },
   },
   {

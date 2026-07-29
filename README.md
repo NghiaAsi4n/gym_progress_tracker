@@ -81,6 +81,8 @@ The seed command can be run repeatedly without creating duplicate data and is di
 | `WEB_ORIGIN`           | Origin allowed to call the API                  | `http://localhost:5173`                  |
 | `ACCESS_TOKEN_SECRET`  | Access token signing secret, at least 32 chars  | Required                                 |
 | `REFRESH_TOKEN_SECRET` | Refresh token signing secret, at least 32 chars | Required                                 |
+| `ADMIN_EMAIL`          | Email to create or promote as administrator     | Optional; set with `ADMIN_PASSWORD`      |
+| `ADMIN_PASSWORD`       | Initial password for a new administrator        | Optional; 12–128 chars                   |
 | `VITE_API_URL`         | API base URL used by the web application        | `http://localhost:4000/api/v1`           |
 
 TTL, audience, and issuer settings are documented in full in `.env.example`.
@@ -118,6 +120,8 @@ docker run --rm -p 4000:4000 --env-file .env.production gym-tracking:local
 ```
 
 The production image builds both the web application and API, then Express serves the SPA and REST API from a single port. The repository also includes `render.yaml` for the API and `vercel.json` for the web application when separate deployments are required.
+
+For an API deployment on Render, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` together in the service environment, then redeploy. On startup, the API creates that administrator if the email is new, or promotes the existing account without changing its current password. After signing in, an administrator can choose **All users** while creating an exercise; the new exercise then appears in every account. The two bootstrap variables may be removed together after the first successful startup because the role is stored in MongoDB.
 
 ## Contributing
 

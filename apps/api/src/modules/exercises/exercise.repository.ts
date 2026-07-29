@@ -40,6 +40,18 @@ export function createExerciseRepository() {
       return exercise.toObject<ExerciseRecord>();
     },
 
+    async createSystem(input: CreateExerciseInput): Promise<ExerciseRecord> {
+      const exercise = await ExerciseModel.create({
+        name: input.name,
+        muscleGroups: input.muscleGroups,
+        movementPattern: input.movementPattern,
+        equipment: input.equipment,
+        difficulty: input.difficulty,
+        isSystem: true,
+      });
+      return exercise.toObject<ExerciseRecord>();
+    },
+
     async findById(id: string): Promise<ExerciseRecord | null> {
       return ExerciseModel.findById(id).lean<ExerciseRecord>() ?? null;
     },
@@ -92,6 +104,14 @@ export function createExerciseRepository() {
       const count = await ExerciseModel.countDocuments({
         name: { $regex: `^${escapeRegex(name)}$`, $options: "i" },
         $or: [{ isSystem: true }, { ownerId }],
+      });
+      return count > 0;
+    },
+
+    async existsSystemByName(name: string): Promise<boolean> {
+      const count = await ExerciseModel.countDocuments({
+        isSystem: true,
+        name: { $regex: `^${escapeRegex(name)}$`, $options: "i" },
       });
       return count > 0;
     },

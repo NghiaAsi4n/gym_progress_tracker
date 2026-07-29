@@ -3,7 +3,7 @@ services:
     name: gym-tracking-api
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run contracts:build && npm run build --workspace=@gym-tracking/api
+    buildCommand: npm ci --include=dev --ignore-scripts && npm run contracts:build && npm run build --workspace=@gym-tracking/api
     startCommand: node apps/api/dist/server.js
     healthCheckPath: /api/v1/health
     envVars:
@@ -17,3 +17,7 @@ services:
         generateValue: true
       - key: REFRESH_TOKEN_SECRET
         generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

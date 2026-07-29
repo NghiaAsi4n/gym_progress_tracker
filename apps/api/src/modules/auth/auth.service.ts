@@ -1,8 +1,4 @@
-import type {
-  LoginRequest,
-  PublicUser,
-  RegisterRequest,
-} from "@gym-tracking/contracts";
+import type { LoginRequest, PublicUser, RegisterRequest } from "@gym-tracking/contracts";
 
 import { ApiError } from "../../shared/api-error.js";
 import type { UserRecord, UserRepository } from "../users/user.repository.js";
@@ -30,6 +26,7 @@ export function toPublicUser(user: UserRecord): PublicUser {
       theme: user.preferences.theme,
       unit: user.preferences.unit,
     },
+    role: user.role ?? "USER",
   };
 }
 

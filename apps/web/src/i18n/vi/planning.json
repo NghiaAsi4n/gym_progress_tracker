@@ -1,4 +1,9 @@
 {
+  "exerciseVisibility": "Phạm vi bài tập",
+  "privateExercise": "Chỉ mình tôi",
+  "sharedExercise": "Tất cả người dùng",
+  "exerciseVisibilityHint": "Bài tập dùng chung sẽ xuất hiện trong mọi tài khoản.",
+  "createSharedExercise": "Tạo bài tập dùng chung",
   "catalogEyebrow": "Danh mục bài tập",
   "catalogTitle": "Xây dựng thư viện động tác",
   "exerciseFilters": "Bộ lọc bài tập",

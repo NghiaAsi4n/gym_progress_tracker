@@ -27,6 +27,12 @@ export function createExerciseController(exerciseService: ExerciseService) {
       response.status(201).json(result);
     },
 
+    createSystem: async (request: Request, response: Response): Promise<void> => {
+      const input = validateInput(createExerciseRequestSchema, request.body);
+      const result = await exerciseService.createSystem(input);
+      response.status(201).json(result);
+    },
+
     update: async (request: Request<{ id: string }>, response: Response): Promise<void> => {
       const input = validateInput(updateExerciseRequestSchema, request.body);
       const result = await exerciseService.update(request.auth!.userId, request.params.id, input);

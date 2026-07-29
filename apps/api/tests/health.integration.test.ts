@@ -124,6 +124,47 @@ describe("API foundation", () => {
     ).toThrowError(/ACCESS_TOKEN_SECRET.*REFRESH_TOKEN_SECRET/);
   });
 
+  it("requires admin credentials as a complete pair", () => {
+    expect(() =>
+      parseEnv({
+        ...TEST_ENV_SECRETS,
+        ADMIN_EMAIL: "admin@example.com",
+      }),
+    ).toThrowError(/ADMIN_PASSWORD/);
+    expect(() =>
+      parseEnv({
+        ...TEST_ENV_SECRETS,
+        ADMIN_PASSWORD: "AdminPassword1!",
+      }),
+    ).toThrowError(/ADMIN_EMAIL/);
+  });
+
+  it("normalizes configured admin credentials", () => {
+    expect(
+      parseEnv({
+        ...TEST_ENV_SECRETS,
+        ADMIN_EMAIL: "  Admin@Example.COM ",
+        ADMIN_PASSWORD: "AdminPassword1!",
+      }),
+    ).toMatchObject({
+      ADMIN_EMAIL: "admin@example.com",
+      ADMIN_PASSWORD: "AdminPassword1!",
+    });
+  });
+
+  it("treats empty optional admin credentials as unset", () => {
+    expect(
+      parseEnv({
+        ...TEST_ENV_SECRETS,
+        ADMIN_EMAIL: "",
+        ADMIN_PASSWORD: "",
+      }),
+    ).toMatchObject({
+      ADMIN_EMAIL: undefined,
+      ADMIN_PASSWORD: undefined,
+    });
+  });
+
   it("does not require a root .env file", () => {
     expect(() => loadRootEnvFile()).not.toThrow();
   });

@@ -82,6 +82,17 @@ export function createExerciseService(
       return { data: toExercise(exercise) };
     },
 
+    async createSystem(input: CreateExerciseRequest): Promise<{ data: Exercise }> {
+      const exists = await exerciseRepository.existsSystemByName(input.name);
+
+      if (exists) {
+        throw new ApiError("CONFLICT", "A system exercise with this name already exists");
+      }
+
+      const exercise = await exerciseRepository.createSystem(input);
+      return { data: toExercise(exercise) };
+    },
+
     async update(
       userId: string,
       exerciseId: string,

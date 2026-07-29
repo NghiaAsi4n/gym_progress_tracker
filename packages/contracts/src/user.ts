@@ -3,6 +3,7 @@ import { z } from "zod";
 export const unitPreferenceSchema = z.enum(["KG", "LB"]);
 export const localePreferenceSchema = z.enum(["vi", "en"]);
 export const themePreferenceSchema = z.enum(["LIGHT", "DARK", "SYSTEM"]);
+export const userRoleSchema = z.enum(["USER", "ADMIN"]);
 
 export const userPreferencesSchema = z.strictObject({
   locale: localePreferenceSchema,
@@ -20,6 +21,7 @@ export const publicUserSchema = z.strictObject({
   id: z.string().regex(/^[\da-f]{24}$/),
   email: z.email().max(254),
   preferences: userPreferencesSchema,
+  role: userRoleSchema.default("USER"),
 });
 
 export const meResponseSchema = z.strictObject({
@@ -33,6 +35,7 @@ export const preferencesResponseSchema = meResponseSchema;
 export type UnitPreference = z.infer<typeof unitPreferenceSchema>;
 export type LocalePreference = z.infer<typeof localePreferenceSchema>;
 export type ThemePreference = z.infer<typeof themePreferenceSchema>;
+export type UserRole = z.infer<typeof userRoleSchema>;
 export type UserPreferences = z.infer<typeof userPreferencesSchema>;
 export type PreferencesPatchRequest = z.infer<typeof preferencesPatchRequestSchema>;
 export type PublicUser = z.infer<typeof publicUserSchema>;

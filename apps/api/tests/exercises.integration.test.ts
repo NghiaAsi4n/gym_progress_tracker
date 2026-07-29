@@ -1,3 +1,4 @@
+import { exerciseListResponseSchema, exerciseResponseSchema } from "@gym-tracking/contracts";
 import mongoose from "mongoose";
 import request from "supertest";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
@@ -41,7 +42,7 @@ beforeEach(async () => {
   await ExerciseModel.deleteMany({ isSystem: false });
 });
 
-async function registerAndLogin(suffix = "") {
+async function registerAndLogin(suffix = "", role: "USER" | "ADMIN" = "USER") {
   const app = buildApp();
   const email = `exercise${suffix}${Date.now()}@test.com`;
   const password = "Password1!";
@@ -49,6 +50,9 @@ async function registerAndLogin(suffix = "") {
     .post("/api/v1/auth/register")
     .set("Origin", TEST_WEB_ORIGIN)
     .send({ email, password });
+  if (role === "ADMIN") {
+    await UserModel.updateOne({ normalizedEmail: email }, { $set: { role: "ADMIN" } });
+  }
   const login = await request(app)
     .post("/api/v1/auth/login")
     .set("Origin", TEST_WEB_ORIGIN)
@@ -230,6 +234,65 @@ describe("POST /api/v1/exercises", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({ name: "" });
     expect(res.status).toBe(422);
+  });
+
+  it("forbids a regular user from creating a system exercise", async () => {
+    const token = await registerAndLogin("_system_forbidden");
+    const response = await request(buildApp())
+      .post("/api/v1/exercises/system")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Shared Admin Press",
+        muscleGroups: ["CHEST"],
+        movementPattern: "PUSH",
+        equipment: "MACHINE",
+        difficulty: "BEGINNER",
+      });
+
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      error: {
+        code: "FORBIDDEN",
+        message: "Administrator access required",
+      },
+    });
+  });
+
+  it("lets an admin create a system exercise visible to another user", async () => {
+    const adminToken = await registerAndLogin("_system_admin", "ADMIN");
+    const userToken = await registerAndLogin("_system_viewer");
+    const app = buildApp();
+    const name = `Shared Admin Row ${Date.now()}`;
+
+    const created = await request(app)
+      .post("/api/v1/exercises/system")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        name,
+        muscleGroups: ["BACK", "BICEPS"],
+        movementPattern: "PULL",
+        equipment: "CABLE",
+        difficulty: "INTERMEDIATE",
+      });
+
+    expect(created.status).toBe(201);
+    expect(exerciseResponseSchema.parse(created.body).data).toMatchObject({
+      isSystem: true,
+      name,
+      ownerId: null,
+    });
+
+    const listed = await request(app)
+      .get(`/api/v1/exercises?name=${encodeURIComponent(name)}`)
+      .set("Authorization", `Bearer ${userToken}`);
+    expect(listed.status).toBe(200);
+    expect(exerciseListResponseSchema.parse(listed.body).data).toEqual([
+      expect.objectContaining({
+        isSystem: true,
+        name,
+        ownerId: null,
+      }),
+    ]);
   });
 });
 
