@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Exercise } from "@gym-tracking/contracts";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -179,6 +179,52 @@ describe("Phase 4 planning UI", () => {
       {
         name: "Push day",
         exerciseIds: [exercise.id],
+      },
+      expect.anything(),
+    );
+  });
+
+  it("removes an accidentally added exercise before creating a plan", async () => {
+    const squat = {
+      ...exercise,
+      id: "507f1f77bcf86cd799439015",
+      name: "Goblet Squat",
+    };
+    vi.mocked(api.listExercises).mockResolvedValue({
+      data: [exercise, squat],
+      pagination: { page: 1, pageSize: 100, totalItems: 2, totalPages: 1 },
+    });
+    vi.mocked(api.listTemplates).mockResolvedValue({ data: [] });
+    vi.mocked(api.createTemplate).mockResolvedValue({
+      data: {
+        id: "507f1f77bcf86cd799439013",
+        ownerId: "507f1f77bcf86cd799439014",
+        name: "Leg day",
+        exercises: [{ exerciseId: squat.id, order: 0, exercise: squat }],
+        createdAt: exercise.createdAt,
+        updatedAt: exercise.updatedAt,
+      },
+    });
+    const user = userEvent.setup();
+    renderPage(<WorkoutTemplatesPage />);
+
+    await user.type(screen.getByLabelText("Plan name"), "Leg day");
+    await user.selectOptions(screen.getByLabelText("Add exercise"), exercise.id);
+    await user.selectOptions(screen.getByLabelText("Add exercise"), squat.id);
+    await user.click(screen.getByRole("button", { name: "Remove Push-Up" }));
+
+    const selectedExercises = screen.getByRole("list", { name: "Selected exercises" });
+    expect(within(selectedExercises).queryByText("Push-Up")).not.toBeInTheDocument();
+    expect(within(selectedExercises).getByText("Goblet Squat")).toBeVisible();
+    expect(
+      within(screen.getByLabelText("Add exercise")).getByRole("option", { name: "Push-Up" }),
+    ).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Create plan" }));
+    expect(api.createTemplate).toHaveBeenCalledWith(
+      {
+        name: "Leg day",
+        exerciseIds: [squat.id],
       },
       expect.anything(),
     );

@@ -65,19 +65,48 @@ export function WorkoutTemplatesPage() {
               value=""
             >
               <option value="">{t("planning", "chooseExercise")}</option>
-              {exercises.data?.data.map((exercise) => (
-                <option key={exercise.id} value={exercise.id}>
-                  {exercise.name}
-                </option>
-              ))}
+              {exercises.data?.data
+                .filter((exercise) => !exerciseIds.includes(exercise.id))
+                .map((exercise) => (
+                  <option key={exercise.id} value={exercise.id}>
+                    {exercise.name}
+                  </option>
+                ))}
             </select>
           </label>
-          <ol>
-            {exerciseIds.map((id) => (
-              <li key={id}>
-                {exercises.data?.data.find((exercise) => exercise.id === id)?.name ?? id}
-              </li>
-            ))}
+          <p className="helper-text" role="status">
+            {exerciseIds.length === 0
+              ? t("planning", "noSelectedExercises")
+              : `${exerciseIds.length} ${t("planning", "selectedExerciseCount")}`}
+          </p>
+          <ol
+            aria-label={t("planning", "selectedExercises")}
+            className="planning-list template-exercise-list"
+          >
+            {exerciseIds.map((id, index) => {
+              const exerciseName =
+                exercises.data?.data.find((exercise) => exercise.id === id)?.name ?? id;
+
+              return (
+                <li key={id}>
+                  <span aria-hidden="true" className="template-exercise-order">
+                    {index + 1}
+                  </span>
+                  <strong>{exerciseName}</strong>
+                  <button
+                    aria-label={`${t("planning", "removeExercise")} ${exerciseName}`}
+                    onClick={() =>
+                      setExerciseIds((current) =>
+                        current.filter((exerciseId) => exerciseId !== id),
+                      )
+                    }
+                    type="button"
+                  >
+                    {t("planning", "removeExercise")}
+                  </button>
+                </li>
+              );
+            })}
           </ol>
           <button className="button button-primary" type="submit">
             {t("planning", "createTemplate")}

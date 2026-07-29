@@ -872,6 +872,25 @@ h2 {
   gap: var(--space-1);
 }
 
+.template-exercise-list {
+  margin-top: 0;
+}
+
+.template-exercise-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.template-exercise-list strong {
+  overflow-wrap: anywhere;
+}
+
+.template-exercise-order {
+  color: var(--color-accent);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
 .planning-list small,
 .helper-text {
   color: var(--color-text-muted);
