@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run contracts:build && npm run build --workspace=@gym-tracking/web",
   "outputDirectory": "apps/web/dist",
-  "installCommand": "npm ci",
+  "installCommand": "npm ci --include=dev --ignore-scripts",
   "rewrites": [
     {
       "source": "/api/v1/:path*",
