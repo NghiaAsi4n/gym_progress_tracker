@@ -135,6 +135,13 @@ export function AppShell() {
             ) : (
               <Link to="/auth/login">{t("auth", "loginAction")}</Link>
             )}
+            <a
+              href="https://github.com/NghiaAsi4n/gym_progress_tracker"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {t("common", "footerContribute")}
+            </a>
           </nav>
         </div>
         <div className="footer-meta">

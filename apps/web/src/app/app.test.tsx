@@ -173,6 +173,14 @@ describe("application shell", () => {
       "href",
       "/progress",
     );
+    expect(screen.getByRole("link", { name: "Contribute on GitHub" })).toHaveAttribute(
+      "href",
+      "https://github.com/NghiaAsi4n/gym_progress_tracker",
+    );
+    expect(screen.getByRole("link", { name: "Contribute on GitHub" })).toHaveAttribute(
+      "target",
+      "_blank",
+    );
   });
 
   it("keeps sign out separate from primary navigation", async () => {
